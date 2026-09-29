@@ -194,6 +194,10 @@ body {
   padding: 5px 12px;
 }
 
+.btn-block {
+  width: 100%;
+}
+
 .btn-icon {
   background: transparent;
   border: none;
@@ -238,7 +242,7 @@ body {
   padding: 10px 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   flex-shrink: 0;
 }
@@ -251,28 +255,15 @@ body {
   letter-spacing: 0.5px;
 }
 
-.simulation-buttons {
+.simulation-actions {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
-.btn-simulation {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-medium);
-  color: var(--text-main);
+.simulation-hint {
   font-size: 12px;
-  font-weight: 500;
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-simulation:hover {
-  background-color: var(--color-primary-light);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--text-muted);
 }
 
 /* Chat Feed */
@@ -723,6 +714,50 @@ body {
   overflow-x: auto;
 }
 
+/* Simulation Choices Modal */
+.sim-card-choice {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.choice-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.badge-green {
+  background-color: var(--color-success-light);
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-amber {
+  background-color: var(--color-warning-light);
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.choice-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.choice-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -745,7 +780,7 @@ body {
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-lg);
   width: 90%;
-  max-width: 460px;
+  max-width: 480px;
   padding: 22px;
   display: flex;
   flex-direction: column;
@@ -775,7 +810,7 @@ body {
 .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .modal-desc {
@@ -794,11 +829,6 @@ body {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-main);
-}
-
-.form-hint {
-  font-size: 11px;
-  color: var(--text-muted);
 }
 
 .input-text, .input-select, .input-textarea {

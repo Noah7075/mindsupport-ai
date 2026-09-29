@@ -39,7 +39,7 @@
       </button>
 
       <button id="voiceToggleBtn" class="btn btn-secondary btn-sm">Voice: Off</button>
-      <button id="settingsBtn" class="btn btn-secondary btn-sm">Settings</button>
+      <button id="clearChatBtn" class="btn btn-secondary btn-sm" title="Clear chat history">Clear Chat</button>
     </div>
   </header>
 
@@ -48,31 +48,29 @@
     
     <main class="chat-section">
       
-      <!-- Simulation Controls Header -->
+      <!-- Clean Simulation Control Bar -->
       <div class="simulation-banner">
-        <span class="simulation-label">Simulate Overnight Incident:</span>
-        <div class="simulation-buttons">
-          <button id="simKnownBtn" class="btn btn-simulation">
-            2:14 AM Crash (Known Bug - Safe Auto-Fix)
+        <span class="simulation-label">Outage Testing:</span>
+        <div class="simulation-actions">
+          <button id="openSimModalBtn" class="btn btn-primary btn-sm">
+            Try Simulation
           </button>
-          <button id="simNovelBtn" class="btn btn-simulation">
-            3:30 AM Crash (Novel Bug - Safe Containment)
-          </button>
+          <span class="simulation-hint">Test memory-gated autonomy during overnight crashes</span>
         </div>
       </div>
 
       <!-- Chat Feed -->
       <div id="chatFeed" class="chat-feed">
         
-        <!-- Welcome Message -->
+        <!-- Fresh Clean Welcome Message -->
         <div class="chat-bubble bot-bubble">
           <div class="bubble-header">
             <span class="bubble-sender">Aegis Guardian</span>
             <span class="bubble-time">Just now</span>
           </div>
           <div class="bubble-body">
-            <p>Good morning! I monitored your production services while you were sleeping. Connected live to <strong>Hindsight Cloud</strong> (Memory Bank: <code>production-app</code>).</p>
-            <p>All health checks are passing (latency: 38ms). Click an overnight simulation above to see memory-gated autonomy in action, ask a question, or open the <strong>Memory Bank</strong> menu in the top right.</p>
+            <p>Good morning! I am actively monitoring your production services with <strong>Gemini 2.5 Flash</strong> and <strong>Hindsight Cloud</strong> (Bank: <code>production-app</code>).</p>
+            <p>All services are healthy (latency: 38ms). Click <strong>Try Simulation</strong> above to test an outage scenario, ask any question below, or view the <strong>Memory Bank</strong>.</p>
           </div>
         </div>
 
@@ -101,6 +99,33 @@
 
   </div>
 
+  <!-- Simulation Selection Modal -->
+  <div id="simModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Outage Scenario to Simulate</h3>
+        <button id="closeSimModalBtn" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">See how Aegis Guardian uses Hindsight persistent memory to make safe, autonomous decisions while you sleep.</p>
+
+        <div class="sim-card-choice" id="choiceKnown">
+          <div class="choice-badge badge-green">Known Pattern (94% Memory Match)</div>
+          <div class="choice-title">2:14 AM Checkout 504 Timeout</div>
+          <p class="choice-desc">Hindsight recalls Incident INC-104 and executes safe autonomous Redis lock flush in 18 seconds.</p>
+          <button id="runKnownSimBtn" class="btn btn-primary btn-sm btn-block">Simulate This Scenario</button>
+        </div>
+
+        <div class="sim-card-choice" id="choiceNovel">
+          <div class="choice-badge badge-amber">Novel Issue (0% Memory Match)</div>
+          <div class="choice-title">3:30 AM Database Schema Deadlock</div>
+          <p class="choice-desc">Zero precedent in Hindsight. Autonomous mutations are blocked to protect data; safe containment activated.</p>
+          <button id="runNovelSimBtn" class="btn btn-secondary btn-sm btn-block">Simulate This Scenario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Slide-Out Memory Bank Drawer (Opened via Hamburger Menu) -->
   <div id="drawerBackdrop" class="drawer-backdrop"></div>
   <aside id="memoryDrawer" class="memory-drawer">
@@ -122,7 +147,7 @@
       <p>I only auto-fix crashes while you sleep if Hindsight Cloud has a <em>verified playbook</em> (90%+ confidence). Novel issues are safely held for human review.</p>
     </div>
 
-    <!-- Category Filters -->
+    <!-- Category Tabs -->
     <div class="category-tabs">
       <button class="cat-tab active" data-category="all">All (<span id="catCountAll">0</span>)</button>
       <button class="cat-tab" data-category="playbook">Safe Playbooks (<span id="catCountPlaybooks">0</span>)</button>
@@ -143,7 +168,7 @@
 
   </aside>
 
-  <!-- Teach Rule Modal -->
+  <!-- Teach Rule Modal with "Other" Custom Category -->
   <div id="teachModal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -152,6 +177,7 @@
       </div>
       <div class="modal-body">
         <p class="modal-desc">This rule will be saved directly into your <strong>Hindsight Cloud</strong> memory bank so the agent adheres to it during future incidents.</p>
+        
         <div class="form-group">
           <label for="ruleCategory">Category:</label>
           <select id="ruleCategory" class="input-select">
@@ -159,8 +185,16 @@
             <option value="Deployment Rule">Deployment Rule</option>
             <option value="Security & Secrets">Security & Secrets</option>
             <option value="Third-Party Integration">Third-Party Integration</option>
+            <option value="Other">Other (Type custom category below)</option>
           </select>
         </div>
+
+        <!-- Custom Category Input (shown when "Other" is chosen) -->
+        <div class="form-group" id="customCategoryGroup" style="display: none;">
+          <label for="customCategoryInput">Custom Category Name:</label>
+          <input type="text" id="customCategoryInput" class="input-text" placeholder="e.g. Rate Limiting Policy, Cache Rule">
+        </div>
+
         <div class="form-group">
           <label for="ruleText">Rule / Knowledge Description:</label>
           <textarea id="ruleText" rows="3" class="input-textarea" placeholder="e.g. Always cap PostgreSQL connection pool to 100, because AWS RDS micro instance will run out of memory otherwise."></textarea>
@@ -168,35 +202,6 @@
       </div>
       <div class="modal-footer">
         <button id="saveRuleBtn" class="btn btn-primary">Save to Hindsight Cloud</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">Settings & API Configuration</h3>
-        <button id="closeSettingsModalBtn" class="btn-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="geminiKey">Google Gemini API Key:</label>
-          <input type="password" id="geminiKey" class="input-text" placeholder="AIzaSy...">
-          <small class="form-hint">Connected to Gemini 2.5 Flash via .env.</small>
-        </div>
-        <div class="form-group">
-          <label for="hindsightUrl">Hindsight Base URL:</label>
-          <input type="text" id="hindsightUrl" value="https://api.hindsight.vectorize.io" class="input-text">
-        </div>
-        <div class="form-group">
-          <label for="hindsightKey">Hindsight Cloud API Key:</label>
-          <input type="password" id="hindsightKey" placeholder="hsk_..." class="input-text">
-          <small class="form-hint">Connected to Hindsight Cloud via .env.</small>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 /**
  * Aegis Guardian - Frontend Controller
  * Features slide-out Hindsight Memory Bank drawer,
- * category filtering, natural conversation, and overnight incident simulations.
+ * category filtering, custom category input, simulation modal, and chat clearing.
  */
 
 // State
@@ -15,9 +15,15 @@ let currentCategoryFilter = "all";
 const chatFeed = document.getElementById("chatFeed");
 const chatForm = document.getElementById("chatForm");
 const chatInput = document.getElementById("chatInput");
-const simKnownBtn = document.getElementById("simKnownBtn");
-const simNovelBtn = document.getElementById("simNovelBtn");
+const clearChatBtn = document.getElementById("clearChatBtn");
 const hintChips = document.querySelectorAll(".hint-chip");
+
+// Simulation Modal Elements
+const openSimModalBtn = document.getElementById("openSimModalBtn");
+const simModal = document.getElementById("simModal");
+const closeSimModalBtn = document.getElementById("closeSimModalBtn");
+const runKnownSimBtn = document.getElementById("runKnownSimBtn");
+const runNovelSimBtn = document.getElementById("runNovelSimBtn");
 
 // Drawer Elements
 const memoryDrawerBtn = document.getElementById("memoryDrawerBtn");
@@ -35,21 +41,16 @@ const catCountPlaybooks = document.getElementById("catCountPlaybooks");
 const catCountMistakes = document.getElementById("catCountMistakes");
 const catCountPolicies = document.getElementById("catCountPolicies");
 
-// Modals
+// Teach Rule Modal Elements
 const openTeachModalBtn = document.getElementById("openTeachModalBtn");
 const teachModal = document.getElementById("teachModal");
 const closeTeachModalBtn = document.getElementById("closeTeachModalBtn");
 const saveRuleBtn = document.getElementById("saveRuleBtn");
 const ruleCategory = document.getElementById("ruleCategory");
+const customCategoryGroup = document.getElementById("customCategoryGroup");
+const customCategoryInput = document.getElementById("customCategoryInput");
 const ruleText = document.getElementById("ruleText");
 
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsModal = document.getElementById("settingsModal");
-const closeSettingsModalBtn = document.getElementById("closeSettingsModalBtn");
-const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-const geminiKey = document.getElementById("geminiKey");
-const hindsightUrl = document.getElementById("hindsightUrl");
-const hindsightKey = document.getElementById("hindsightKey");
 const voiceToggleBtn = document.getElementById("voiceToggleBtn");
 
 
@@ -70,7 +71,7 @@ function setupEventListeners() {
     if (e.key === "Escape") {
       closeDrawer();
       teachModal.classList.remove("open");
-      settingsModal.classList.remove("open");
+      simModal.classList.remove("open");
     }
   });
 
@@ -87,9 +88,22 @@ function setupEventListeners() {
   // Drawer Search
   drawerSearchInput.addEventListener("input", renderFilteredDrawerCards);
 
-  // Simulations
-  simKnownBtn.addEventListener("click", () => triggerOvernightSimulation("known_issue"));
-  simNovelBtn.addEventListener("click", () => triggerOvernightSimulation("novel_issue"));
+  // Simulations Modal
+  openSimModalBtn.addEventListener("click", () => simModal.classList.add("open"));
+  closeSimModalBtn.addEventListener("click", () => simModal.classList.remove("open"));
+
+  runKnownSimBtn.addEventListener("click", () => {
+    simModal.classList.remove("open");
+    triggerOvernightSimulation("known_issue");
+  });
+
+  runNovelSimBtn.addEventListener("click", () => {
+    simModal.classList.remove("open");
+    triggerOvernightSimulation("novel_issue");
+  });
+
+  // Clear Chat Button
+  clearChatBtn.addEventListener("click", resetChatFeed);
 
   // Chat Submission
   chatForm.addEventListener("submit", handleChatSubmit);
@@ -120,12 +134,36 @@ function setupEventListeners() {
     teachModal.classList.add("open");
   });
   closeTeachModalBtn.addEventListener("click", () => teachModal.classList.remove("open"));
-  saveRuleBtn.addEventListener("click", handleSaveRule);
+  
+  // Custom Category Toggle ("Other")
+  ruleCategory.addEventListener("change", () => {
+    if (ruleCategory.value === "Other") {
+      customCategoryGroup.style.display = "flex";
+      customCategoryInput.focus();
+    } else {
+      customCategoryGroup.style.display = "none";
+    }
+  });
 
-  // Settings Modal
-  settingsBtn.addEventListener("click", () => settingsModal.classList.add("open"));
-  closeSettingsModalBtn.addEventListener("click", () => settingsModal.classList.remove("open"));
-  saveSettingsBtn.addEventListener("click", handleSaveSettings);
+  saveRuleBtn.addEventListener("click", handleSaveRule);
+}
+
+
+// Reset & Clear Chat Feed
+function resetChatFeed() {
+  chatFeed.innerHTML = `
+    <div class="chat-bubble bot-bubble">
+      <div class="bubble-header">
+        <span class="bubble-sender">Aegis Guardian</span>
+        <span class="bubble-time">Just now</span>
+      </div>
+      <div class="bubble-body">
+        <p>Chat cleared. I am monitoring your production services with <strong>Gemini 2.5 Flash</strong> and <strong>Hindsight Cloud</strong> (Bank: <code>production-app</code>).</p>
+        <p>All services are healthy (latency: 38ms). Click <strong>Try Simulation</strong> above to test an outage scenario or ask a question below.</p>
+      </div>
+    </div>
+  `;
+  chatHistory = [];
 }
 
 
@@ -299,7 +337,7 @@ function showTypingIndicator() {
   typing.className = "chat-bubble bot-bubble";
   typing.innerHTML = `
     <div class="bubble-body" style="padding: 10px 16px; color: #64748b; font-style: italic;">
-      Guardian is querying Hindsight Cloud memory...
+      Guardian is querying Hindsight Cloud memory with Gemini 2.5 Flash...
     </div>
   `;
   chatFeed.appendChild(typing);
@@ -367,7 +405,7 @@ function categorizeMemories(rawMemories) {
       allCategorizedMemories.push({
         id: m.incident_id || m.id,
         category: "policy",
-        categoryLabel: "System Policy",
+        categoryLabel: m.title.replace("Policy: ", "") || "Policy",
         tagClass: "tag-policy",
         title: m.title,
         body: m.root_cause || m.symptoms,
@@ -434,10 +472,21 @@ function renderFilteredDrawerCards() {
 }
 
 
-// Save New Rule
+// Save New Rule (Supports "Other" custom category)
 async function handleSaveRule() {
   const text = ruleText.value.trim();
-  const cat = ruleCategory.value;
+  let selectedCategory = ruleCategory.value;
+
+  if (selectedCategory === "Other") {
+    const customName = customCategoryInput.value.trim();
+    if (!customName) {
+      alert("Please enter a custom category name.");
+      customCategoryInput.focus();
+      return;
+    }
+    selectedCategory = customName;
+  }
+
   if (!text) {
     alert("Please enter a rule description.");
     return;
@@ -447,37 +496,19 @@ async function handleSaveRule() {
     const res = await fetch("/api/teach", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rule_text: text, category: cat })
+      body: JSON.stringify({ rule_text: text, category: selectedCategory })
     });
     const data = await res.json();
     teachModal.classList.remove("open");
     ruleText.value = "";
-    appendBotMessage(`I have committed your new rule to Hindsight Cloud memory: "${text}". I will enforce this rule going forward.`);
+    customCategoryInput.value = "";
+    customCategoryGroup.style.display = "none";
+    ruleCategory.value = "Database Policy";
+
+    appendBotMessage(`I have committed your new rule to Hindsight Cloud memory under "${selectedCategory}": "${text}". I will enforce this rule going forward.`);
     loadMemories();
   } catch (err) {
     alert("Error saving rule: " + err.message);
-  }
-}
-
-
-// Save Settings
-async function handleSaveSettings() {
-  const payload = {
-    gemini_api_key: geminiKey.value.trim() || null,
-    hindsight_base_url: hindsightUrl.value.trim() || null,
-    hindsight_api_key: hindsightKey.value.trim() || null
-  };
-
-  try {
-    await fetch("/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    settingsModal.classList.remove("open");
-    alert("Configuration updated successfully.");
-  } catch (err) {
-    alert("Settings error: " + err.message);
   }
 }
 
