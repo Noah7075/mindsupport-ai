@@ -5,3 +5,20 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
+
+# Local draft articles and submission guides
+article_*.md
+article_*.html
+generate_html_articles.py
+cs.pdf
+
+# Local test & debug scratch scripts
+test_*.py
+verify_*.py
+inspect_*.py
+seed_*.py
+check_*.py
+print_*.py
+create_*.py
+debug_*.py
+screenshots/test_screenshot.png
