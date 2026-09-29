@@ -17,6 +17,21 @@ except ImportError:
     HINDSIGHT_AVAILABLE = False
 
 
+def _load_env_if_needed():
+    if not os.getenv("HINDSIGHT_API_KEY"):
+        env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if "=" in line and not line.startswith("#"):
+                        k, v = line.split("=", 1)
+                        if v:
+                            os.environ[k] = v
+
+_load_env_if_needed()
+
+
 class MemoryManager:
     def __init__(self, base_url: Optional[str] = None, api_key: Optional[str] = None, bank_id: str = "aegisops-sre"):
         self.base_url = base_url or os.getenv("HINDSIGHT_BASE_URL", "https://api.hindsight.vectorize.io")
@@ -48,7 +63,9 @@ class MemoryManager:
         if os.path.exists(self.local_storage_file):
             try:
                 with open(self.local_storage_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    if data and len(data) > 0:
+                        return data
             except Exception:
                 pass
         

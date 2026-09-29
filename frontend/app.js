@@ -18,12 +18,47 @@ const chatInput = document.getElementById("chatInput");
 const clearChatBtn = document.getElementById("clearChatBtn");
 const hintChips = document.querySelectorAll(".hint-chip");
 
-// Simulation Modal Elements
+// Incident Lab & Real Outage Testing Elements
 const openSimModalBtn = document.getElementById("openSimModalBtn");
 const simModal = document.getElementById("simModal");
 const closeSimModalBtn = document.getElementById("closeSimModalBtn");
-const runKnownSimBtn = document.getElementById("runKnownSimBtn");
-const runNovelSimBtn = document.getElementById("runNovelSimBtn");
+const tabPresetLogs = document.getElementById("tabPresetLogs");
+const tabCustomLogs = document.getElementById("tabCustomLogs");
+const panelPresetLogs = document.getElementById("panelPresetLogs");
+const panelCustomLogs = document.getElementById("panelCustomLogs");
+const btnAnalyzeCustomLog = document.getElementById("btnAnalyzeCustomLog");
+const customLogService = document.getElementById("customLogService");
+const customLogText = document.getElementById("customLogText");
+
+// Real Outage Stack Trace Presets
+const PRESET_LOGS = {
+  redis_oom: {
+    service: "checkout-api",
+    scenario_name: "Redis OOM: maxmemory Exceeded by Unbounded Cache",
+    log_content: `[2026-09-29 03:14:22] redis-server[2819]: OOM command not allowed when used memory > 'maxmemory' (2097152000 bytes)
+[2026-09-29 03:14:22] celery.worker.consumer[102]: celery.exceptions.OperationalError: Error 500: OOM command not allowed
+Traceback (most recent call last):
+  File "/app/services/checkout.py", line 88, in reserve_stock
+    redis_client.setex(f"stock_lock:{sku}", 300, order_id)
+redis.exceptions.ResponseError: OOM command not allowed when used memory > 'maxmemory'.`
+  },
+  postgres_disk: {
+    service: "db-primary",
+    scenario_name: "PostgreSQL Disk Volume Full: WAL Archiving Panic",
+    log_content: `[2026-09-29 04:02:11] postgres[18221]: [3-1] PANIC: could not write to file "pg_wal/xlogtemp.18221": No space left on device
+[2026-09-29 04:02:12] postgres[18221]: [3-2] HINT: Check free disk space on data partition (/var/lib/postgresql/data).
+[2026-09-29 04:02:15] app.db.pool[901]: asyncpg.exceptions.DiskFullError: disk full: 99.8% volume capacity reached`
+  },
+  checkout_pool: {
+    service: "checkout-api-gateway",
+    scenario_name: "Checkout Connection Pool Exhaustion (504 Timeout)",
+    log_content: `HTTP 504: Upstream DB connection pool exhausted. Active: 150/150, Waiting threads: 842.
+Traceback (most recent call last):
+  File "/app/routes/checkout.py", line 142, in process_payment
+    async with db.pool.acquire(timeout=15.0) as conn:
+asyncpg.exceptions.PoolTimeoutError: connection acquisition timeout: pool exhausted`
+  }
+};
 
 // Drawer Elements
 const memoryDrawerBtn = document.getElementById("memoryDrawerBtn");
@@ -92,19 +127,64 @@ function setupEventListeners() {
     clearAllMemoriesBtn.addEventListener("click", handleClearAllMemories);
   }
 
-  // Simulations Modal
+  // Incident Lab Modal Open & Close
   openSimModalBtn.addEventListener("click", () => simModal.classList.add("open"));
   closeSimModalBtn.addEventListener("click", () => simModal.classList.remove("open"));
 
-  runKnownSimBtn.addEventListener("click", () => {
-    simModal.classList.remove("open");
-    triggerOvernightSimulation("known_issue");
+  // Incident Lab Tabs
+  if (tabPresetLogs && tabCustomLogs) {
+    tabPresetLogs.addEventListener("click", () => {
+      tabPresetLogs.classList.add("active");
+      tabCustomLogs.classList.remove("active");
+      panelPresetLogs.style.display = "block";
+      panelCustomLogs.style.display = "none";
+    });
+
+    tabCustomLogs.addEventListener("click", () => {
+      tabCustomLogs.classList.add("active");
+      tabPresetLogs.classList.remove("active");
+      panelCustomLogs.style.display = "block";
+      panelPresetLogs.style.display = "none";
+    });
+  }
+
+  // Preset Buttons: Run & Retest
+  document.querySelectorAll(".btn-run-preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-preset");
+      const preset = PRESET_LOGS[key];
+      if (preset) {
+        simModal.classList.remove("open");
+        executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
+      }
+    });
   });
 
-  runNovelSimBtn.addEventListener("click", () => {
-    simModal.classList.remove("open");
-    triggerOvernightSimulation("novel_issue");
+  document.querySelectorAll(".btn-retest-preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-preset");
+      const preset = PRESET_LOGS[key];
+      if (preset) {
+        simModal.classList.remove("open");
+        executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
+      }
+    });
   });
+
+  // Custom Log Analysis
+  if (btnAnalyzeCustomLog) {
+    btnAnalyzeCustomLog.addEventListener("click", () => {
+      const logText = customLogText.value.trim();
+      if (!logText) {
+        alert("Please paste some error logs or a stack trace to analyze.");
+        return;
+      }
+      const service = customLogService.value.trim() || "api.production.app";
+      simModal.classList.remove("open");
+      executeLogAnalysis(logText, service, "Custom Outage Ingestion");
+      customLogText.value = "";
+    });
+  }
 
   // Clear Chat Button
   clearChatBtn.addEventListener("click", resetChatFeed);
@@ -183,32 +263,47 @@ function closeDrawer() {
 }
 
 
-// Handle Overnight Simulation
-async function triggerOvernightSimulation(scenarioType) {
-  appendUserMessage(
-    scenarioType === "known_issue" 
-      ? "Simulate: What happened during the 2:14 AM checkout crash?" 
-      : "Simulate: What happened during the 3:30 AM background worker crash?"
-  );
+// Execute Log Analysis (Novel diagnosis & learning or Hindsight autonomous match)
+async function executeLogAnalysis(logContent, service, scenarioName) {
+  const shortSnippet = logContent.split("\n").slice(0, 3).join("\n");
+  appendUserMessage(`Analyzing Live Telemetry: ${scenarioName || service}\n\n${shortSnippet}`);
 
   showTypingIndicator();
 
   try {
-    const res = await fetch("/api/overnight", {
+    const res = await fetch("/api/incidents/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ scenario_type: scenarioType })
+      body: JSON.stringify({
+        log_content: logContent,
+        service: service,
+        scenario_name: scenarioName
+      })
     });
     const data = await res.json();
     removeTypingIndicator();
-    appendOvernightEventCard(data);
+    appendIncidentAnalysisCard(data, logContent);
+
+    // If novel incident was learned & stored in Hindsight, reload memory bank!
+    if (data.status === "NOVEL_RESOLVED_AND_STORED" || data.retained_memory) {
+      loadMemories();
+    }
 
     if (voiceEnabled) {
       speakText(data.developer_summary);
     }
   } catch (err) {
     removeTypingIndicator();
-    appendBotMessage(`Connection error: ${err.message}`);
+    appendBotMessage(`Incident Analysis Error: ${err.message}`);
+  }
+}
+
+// Backward-compatible trigger for overnight sim
+async function triggerOvernightSimulation(scenarioType) {
+  const key = scenarioType === "known_issue" ? "checkout_pool" : "redis_oom";
+  const preset = PRESET_LOGS[key];
+  if (preset) {
+    executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
   }
 }
 
@@ -285,18 +380,20 @@ function appendBotMessage(text) {
 }
 
 
-// Append Overnight Event Card to Chat
-function appendOvernightEventCard(event) {
+// Append Incident Analysis Card to Chat
+function appendIncidentAnalysisCard(event, originalLog) {
   const card = document.createElement("div");
   card.className = "incident-event-card";
 
-  const isAutoFix = event.autonomy_decision === "AUTONOMOUS_FIX_APPLIED";
-  const badgeClass = isAutoFix ? "badge-auto-fix" : "badge-containment";
-  const badgeLabel = isAutoFix ? "Autonomous Safe Fix Applied" : "Safety Containment Only (Risk Blocked)";
+  const isAutoFix = event.status === "AUTONOMOUS_FIX_APPLIED" || event.is_match;
+  const badgeClass = isAutoFix ? "badge-auto-fix" : "badge-learned";
+  const badgeLabel = isAutoFix 
+    ? `Autonomous Safe Fix Applied (${event.confidence_score}% Hindsight Match)` 
+    : `Novel Incident Learned & Stored in Hindsight Cloud`;
 
   card.innerHTML = `
     <div class="event-card-header">
-      <span class="event-time-code">${event.scenario_id} • ${event.timestamp}</span>
+      <span class="event-time-code">${event.scenario_id || event.incident_id} &bull; Just now</span>
       <span class="event-decision-badge ${badgeClass}">${badgeLabel}</span>
     </div>
 
@@ -307,27 +404,42 @@ function appendOvernightEventCard(event) {
     <div class="event-details-grid">
       <div class="detail-item">
         <strong>Target Service</strong>
-        <span>${event.service}</span>
-      </div>
-      <div class="detail-item">
-        <strong>Error Caught</strong>
-        <span>${event.error_code}</span>
+        <span>${event.service || 'Production Gateway'}</span>
       </div>
       <div class="detail-item">
         <strong>Hindsight Memory Match</strong>
-        <span>${event.matched_memory_id ? `${event.matched_memory_id} (${event.confidence_score}% Confidence)` : '0% (Novel Issue)'}</span>
+        <span>${event.matched_memory_id ? `${event.matched_memory_id} (${event.confidence_score}%)` : '0% (Novel Precedent)'}</span>
+      </div>
+      <div class="detail-item">
+        <strong>Root Cause</strong>
+        <span>${event.root_cause}</span>
       </div>
       <div class="detail-item">
         <strong>Action Executed</strong>
-        <span>${event.action_taken}</span>
+        <span><code>${event.action_taken}</code></span>
       </div>
     </div>
 
     <div class="event-comparison-box">
-      <strong>Why a Standard Dumb AI Would Have Failed:</strong>
+      <strong>Why a Standard AI Without Hindsight Fails:</strong>
       ${event.dumb_ai_comparison}
     </div>
+
+    ${!isAutoFix ? `
+      <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 12px; color: #047857; font-weight: 600;">Saved into Hindsight Cloud Bank 'production-app'</span>
+        <button class="btn btn-secondary btn-sm btn-retest-inline">Trigger Same Bug Again (Test Recall)</button>
+      </div>
+    ` : ''}
   `;
+
+  // Wire up the inline re-test button
+  const retestBtn = card.querySelector(".btn-retest-inline");
+  if (retestBtn) {
+    retestBtn.addEventListener("click", () => {
+      executeLogAnalysis(originalLog, event.service, `Recurring: ${event.title || event.incident_id}`);
+    });
+  }
 
   chatFeed.appendChild(card);
   chatFeed.scrollTop = chatFeed.scrollHeight;

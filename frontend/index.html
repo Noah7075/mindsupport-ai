@@ -53,9 +53,9 @@
         <span class="simulation-label">Outage Testing:</span>
         <div class="simulation-actions">
           <button id="openSimModalBtn" class="btn btn-primary btn-sm">
-            Try Simulation
+            Incident Lab (Real Logs)
           </button>
-          <span class="simulation-hint">Test memory-gated autonomy during overnight crashes</span>
+          <span class="simulation-hint">Inject real bug logs, watch agent diagnose, retain to Hindsight Cloud, and test recurrence</span>
         </div>
       </div>
 
@@ -99,29 +99,114 @@
 
   </div>
 
-  <!-- Simulation Selection Modal -->
+  <!-- Incident Lab & Real Outage Testing Modal -->
   <div id="simModal" class="modal-overlay">
-    <div class="modal-card">
+    <div class="modal-card modal-card-wide">
       <div class="modal-header">
-        <h3 class="modal-title">Select Outage Scenario to Simulate</h3>
+        <div>
+          <h3 class="modal-title">Incident Lab: Real Log Testing & Hindsight Learning</h3>
+          <p class="modal-desc" style="margin: 4px 0 0 0;">Feed real outage logs with bugs into Guardian. Watch it diagnose with Gemini, retain the fix to Hindsight Cloud, and test what happens when that exact bug returns.</p>
+        </div>
         <button id="closeSimModalBtn" class="btn-close">&times;</button>
       </div>
-      <div class="modal-body">
-        <p class="modal-desc">See how Aegis Guardian uses Hindsight persistent memory to make safe, autonomous decisions while you sleep.</p>
 
-        <div class="sim-card-choice" id="choiceKnown">
-          <div class="choice-badge badge-green">Known Pattern (94% Memory Match)</div>
-          <div class="choice-title">2:14 AM Checkout 504 Timeout</div>
-          <p class="choice-desc">Hindsight recalls Incident INC-104 and executes safe autonomous Redis lock flush in 18 seconds.</p>
-          <button id="runKnownSimBtn" class="btn btn-primary btn-sm btn-block">Simulate This Scenario</button>
+      <!-- Tab Switcher -->
+      <div class="modal-tab-bar">
+        <button class="modal-tab-btn active" id="tabPresetLogs">Real Outage Scenarios</button>
+        <button class="modal-tab-btn" id="tabCustomLogs">Paste Custom Logs</button>
+      </div>
+
+      <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+        
+        <!-- Preset Real Outage Logs Panel -->
+        <div id="panelPresetLogs" class="lab-panel active">
+          
+          <!-- Bug Scenario 1: Redis OOM (Novel -> Learns -> Re-test) -->
+          <div class="sim-card-choice" style="margin-bottom: 14px;">
+            <div class="flex-between">
+              <span class="choice-badge badge-blue">Live Test: Novel Bug &rarr; Learned</span>
+              <span class="tech-tag">Redis &bull; Celery &bull; Checkout</span>
+            </div>
+            <div class="choice-title" style="margin-top: 6px;">Redis OOM: maxmemory Exceeded by Unbounded Cache</div>
+            <p class="choice-desc">Application hits <code>OOM command not allowed when used memory > maxmemory (2GB)</code>. Guardian performs live first-principles diagnosis via Gemini, avoids destructive reboots, and commits the lesson to Hindsight Cloud.</p>
+            
+            <details class="log-details-toggle">
+              <summary>View Raw Stack Trace</summary>
+              <pre class="raw-log-preview"><code>[2026-09-29 03:14:22] redis-server[2819]: OOM command not allowed when used memory > 'maxmemory' (2097152000 bytes)
+[2026-09-29 03:14:22] celery.worker.consumer[102]: celery.exceptions.OperationalError: Error 500: OOM command not allowed
+Traceback (most recent call last):
+  File "/app/services/checkout.py", line 88, in reserve_stock
+    redis_client.setex(f"stock_lock:{sku}", 300, order_id)
+redis.exceptions.ResponseError: OOM command not allowed when used memory > 'maxmemory'.</code></pre>
+            </details>
+
+            <div class="sim-action-row" style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="redis_oom">1. Analyze & Learn Live Bug</button>
+              <button class="btn btn-secondary btn-sm btn-retest-preset" data-preset="redis_oom">2. Trigger Same Bug Again</button>
+            </div>
+          </div>
+
+          <!-- Bug Scenario 2: Postgres Disk Full & WAL Archiving Panic -->
+          <div class="sim-card-choice" style="margin-bottom: 14px;">
+            <div class="flex-between">
+              <span class="choice-badge badge-blue">Live Test: Novel DB Panic</span>
+              <span class="tech-tag">Postgres &bull; Disk &bull; WAL</span>
+            </div>
+            <div class="choice-title" style="margin-top: 6px;">PostgreSQL Disk Volume Full: WAL Archiving Panic</div>
+            <p class="choice-desc">Database hits <code>PANIC: could not write to file "pg_wal/xlogtemp": No space left on device</code>. Guardian isolates write traffic, purges stale WAL segment archives, and commits the fix to memory.</p>
+            
+            <details class="log-details-toggle">
+              <summary>View Raw Stack Trace</summary>
+              <pre class="raw-log-preview"><code>[2026-09-29 04:02:11] postgres[18221]: [3-1] PANIC: could not write to file "pg_wal/xlogtemp.18221": No space left on device
+[2026-09-29 04:02:12] postgres[18221]: [3-2] HINT: Check free disk space on data partition (/var/lib/postgresql/data).
+[2026-09-29 04:02:15] app.db.pool[901]: asyncpg.exceptions.DiskFullError: disk full: 99.8% volume capacity reached</code></pre>
+            </details>
+
+            <div class="sim-action-row" style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="postgres_disk">1. Analyze & Learn Live Bug</button>
+              <button class="btn btn-secondary btn-sm btn-retest-preset" data-preset="postgres_disk">2. Trigger Same Bug Again</button>
+            </div>
+          </div>
+
+          <!-- Bug Scenario 3: Baseline Playbook: INC-104 -->
+          <div class="sim-card-choice">
+            <div class="flex-between">
+              <span class="choice-badge badge-green">Baseline Battle-Tested Playbook</span>
+              <span class="tech-tag">Matches INC-104 (94%)</span>
+            </div>
+            <div class="choice-title" style="margin-top: 6px;">Checkout Connection Pool Exhaustion (504 Timeout)</div>
+            <p class="choice-desc">Asyncpg connection acquisition timeout. Hindsight immediately matches this with 94% confidence to past incident INC-104 and executes the autonomous lock flush.</p>
+            
+            <details class="log-details-toggle">
+              <summary>View Raw Stack Trace</summary>
+              <pre class="raw-log-preview"><code>HTTP 504: Upstream DB connection pool exhausted. Active: 150/150, Waiting threads: 842.
+Traceback (most recent call last):
+  File "/app/routes/checkout.py", line 142, in process_payment
+    async with db.pool.acquire(timeout=15.0) as conn:
+asyncpg.exceptions.PoolTimeoutError: connection acquisition timeout: pool exhausted</code></pre>
+            </details>
+
+            <div class="sim-action-row" style="margin-top: 10px;">
+              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="checkout_pool">Simulate Incident Telemetry</button>
+            </div>
+          </div>
+
         </div>
 
-        <div class="sim-card-choice" id="choiceNovel">
-          <div class="choice-badge badge-amber">Novel Issue (0% Memory Match)</div>
-          <div class="choice-title">3:30 AM Database Schema Deadlock</div>
-          <p class="choice-desc">Zero precedent in Hindsight. Autonomous mutations are blocked to protect data; safe containment activated.</p>
-          <button id="runNovelSimBtn" class="btn btn-secondary btn-sm btn-block">Simulate This Scenario</button>
+        <!-- Custom Logs Panel -->
+        <div id="panelCustomLogs" class="lab-panel" style="display: none;">
+          <p class="modal-desc">Paste any real error logs or stack trace from your terminal or production server. Aegis Guardian will query Hindsight Cloud for prior matches or perform first-principles Gemini diagnosis and retain it into memory.</p>
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Service Name</label>
+            <input type="text" id="customLogService" class="form-input" value="api.production.app" placeholder="e.g. billing-worker">
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Raw Logs / Stack Trace</label>
+            <textarea id="customLogText" class="form-textarea" rows="7" placeholder="Paste error logs, exception tracebacks, or system alerts here..."></textarea>
+          </div>
+          <button id="btnAnalyzeCustomLog" class="btn btn-primary btn-sm btn-block" style="margin-top: 12px;">Analyze Logs with Guardian</button>
         </div>
+
       </div>
     </div>
   </div>

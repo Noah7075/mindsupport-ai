@@ -83,6 +83,23 @@ def run_overnight_simulation(req: OvernightRequest):
     return agent.process_overnight_event(scenario_type=req.scenario_type)
 
 
+class LogAnalysisRequest(BaseModel):
+    log_content: str
+    service: Optional[str] = "api.production.app"
+    scenario_name: Optional[str] = None
+
+
+@app.post("/api/incidents/analyze")
+def analyze_logs(req: LogAnalysisRequest):
+    if not req.log_content.strip():
+        raise HTTPException(status_code=400, detail="Log content cannot be empty")
+    return agent.analyze_raw_logs(
+        log_content=req.log_content,
+        service=req.service or "api.production.app",
+        scenario_name=req.scenario_name
+    )
+
+
 @app.post("/api/chat")
 def handle_chat(req: ChatRequest):
     if not req.message.strip():
