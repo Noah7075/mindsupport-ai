@@ -27,15 +27,25 @@
     </div>
 
     <div class="nav-actions">
+      <!-- Hamburger Menu for Memory Bank -->
+      <button id="memoryDrawerBtn" class="btn btn-secondary btn-sm" title="View Hindsight Memory Bank">
+        <span class="hamburger-bars">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <span>Memory Bank</span>
+        <span id="memoryBadgeCount" class="nav-count-pill">4</span>
+      </button>
+
       <button id="voiceToggleBtn" class="btn btn-secondary btn-sm">Voice: Off</button>
       <button id="settingsBtn" class="btn btn-secondary btn-sm">Settings</button>
     </div>
   </header>
 
-  <!-- Main 2-Column Container -->
-  <div class="main-layout">
+  <!-- Centered Chat Container -->
+  <div class="main-container">
     
-    <!-- LEFT COLUMN: Chat Stream & Overnight Activity Feed -->
     <main class="chat-section">
       
       <!-- Simulation Controls Header -->
@@ -62,7 +72,7 @@
           </div>
           <div class="bubble-body">
             <p>Good morning! I monitored your production services while you were sleeping. Connected live to <strong>Hindsight Cloud</strong> (Memory Bank: <code>production-app</code>).</p>
-            <p>All health checks are currently passing (response time: 38ms). You can click an overnight simulation above to see how memory-gated autonomy works, ask me questions about your infrastructure, or teach me a new system rule.</p>
+            <p>All health checks are passing (latency: 38ms). Click an overnight simulation above to see memory-gated autonomy in action, ask a question, or open the <strong>Memory Bank</strong> menu in the top right.</p>
           </div>
         </div>
 
@@ -81,7 +91,7 @@
           <button type="submit" class="btn btn-primary">Send</button>
         </form>
         <div class="chat-hints">
-          <span>Quick prompts:</span>
+          <span>Quick questions:</span>
           <button class="hint-chip" data-prompt="What happened overnight?">What happened overnight?</button>
           <button class="hint-chip" data-prompt="Why shouldn't I restart checkout pods?">Why not restart pods?</button>
           <button class="hint-chip" data-prompt="What are our safe playbooks?">What are our safe playbooks?</button>
@@ -89,52 +99,49 @@
       </div>
     </main>
 
-    <!-- RIGHT COLUMN: Hindsight Memory Bank -->
-    <aside class="memory-sidebar">
-      
-      <div class="sidebar-header">
-        <div>
-          <h2 class="sidebar-title">Hindsight Memory Bank</h2>
-          <p class="sidebar-subtitle">Cloud Bank: <strong id="cloudBankLabel">production-app</strong></p>
-        </div>
-        <button id="openTeachModalBtn" class="btn btn-primary btn-sm">+ Teach Rule</button>
-      </div>
-
-      <!-- Memory Safety Explainer -->
-      <div class="safety-banner">
-        <strong>Memory-Gated Autonomy:</strong>
-        <p>I only auto-fix crashes while you sleep if Hindsight Cloud has a <em>verified playbook</em> (90%+ confidence). Novel issues are safely held for human review.</p>
-      </div>
-
-      <!-- Memory Records List -->
-      <div class="memory-sections">
-        
-        <div class="section-title-wrap">
-          <span class="section-title">Verified Safe Playbooks (Auto-Run Permitted)</span>
-        </div>
-        <div id="safePlaybooksList" class="memory-cards-container">
-          <!-- Dynamically populated from Hindsight -->
-        </div>
-
-        <div class="section-title-wrap">
-          <span class="section-title">Mistakes to Avoid (Negative Memory)</span>
-        </div>
-        <div id="mistakesList" class="memory-cards-container">
-          <!-- Dynamically populated -->
-        </div>
-
-        <div class="section-title-wrap">
-          <span class="section-title">Active Policies & Rules</span>
-        </div>
-        <div id="policiesList" class="memory-cards-container">
-          <!-- Dynamically populated -->
-        </div>
-
-      </div>
-
-    </aside>
-
   </div>
+
+  <!-- Slide-Out Memory Bank Drawer (Opened via Hamburger Menu) -->
+  <div id="drawerBackdrop" class="drawer-backdrop"></div>
+  <aside id="memoryDrawer" class="memory-drawer">
+    
+    <div class="drawer-header">
+      <div>
+        <div class="flex-row-center">
+          <h2 class="drawer-title">Hindsight Memory Bank</h2>
+          <span class="cloud-pill">Cloud Live</span>
+        </div>
+        <p class="drawer-subtitle">Bank: <strong>production-app</strong></p>
+      </div>
+      <button id="closeDrawerBtn" class="btn-icon" title="Close Drawer">&times;</button>
+    </div>
+
+    <!-- Safety Banner -->
+    <div class="safety-banner">
+      <strong>Memory-Gated Autonomy:</strong>
+      <p>I only auto-fix crashes while you sleep if Hindsight Cloud has a <em>verified playbook</em> (90%+ confidence). Novel issues are safely held for human review.</p>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="category-tabs">
+      <button class="cat-tab active" data-category="all">All (<span id="catCountAll">0</span>)</button>
+      <button class="cat-tab" data-category="playbook">Safe Playbooks (<span id="catCountPlaybooks">0</span>)</button>
+      <button class="cat-tab" data-category="mistake">Avoid Mistakes (<span id="catCountMistakes">0</span>)</button>
+      <button class="cat-tab" data-category="policy">Policies (<span id="catCountPolicies">0</span>)</button>
+    </div>
+
+    <!-- Actions & Search -->
+    <div class="drawer-actions">
+      <input type="text" id="drawerSearchInput" class="drawer-search-input" placeholder="Search memory records...">
+      <button id="openTeachModalBtn" class="btn btn-primary btn-sm">+ Teach Rule</button>
+    </div>
+
+    <!-- Memory Records List -->
+    <div id="drawerMemoryList" class="drawer-cards-scroll">
+      <!-- Dynamically populated via app.js -->
+    </div>
+
+  </aside>
 
   <!-- Teach Rule Modal -->
   <div id="teachModal" class="modal-overlay">
@@ -176,7 +183,7 @@
         <div class="form-group">
           <label for="geminiKey">Google Gemini API Key:</label>
           <input type="password" id="geminiKey" class="input-text" placeholder="AIzaSy...">
-          <small class="form-hint">Optional: Built-in heuristics power all default scenarios.</small>
+          <small class="form-hint">Connected to Gemini 2.5 Flash via .env.</small>
         </div>
         <div class="form-group">
           <label for="hindsightUrl">Hindsight Base URL:</label>
@@ -185,7 +192,7 @@
         <div class="form-group">
           <label for="hindsightKey">Hindsight Cloud API Key:</label>
           <input type="password" id="hindsightKey" placeholder="hsk_..." class="input-text">
-          <small class="form-hint">Active key loaded from .env.</small>
+          <small class="form-hint">Connected to Hindsight Cloud via .env.</small>
         </div>
       </div>
       <div class="modal-footer">

@@ -1,15 +1,17 @@
 /**
- * WorkEase Guardian - Chat & Memory Controller
- * Connects natural conversation, overnight autonomy simulations,
- * and persistent Hindsight memory banking.
+ * Aegis Guardian - Frontend Controller
+ * Features slide-out Hindsight Memory Bank drawer,
+ * category filtering, natural conversation, and overnight incident simulations.
  */
 
 // State
 let chatHistory = [];
 let voiceEnabled = false;
 let synth = window.speechSynthesis;
+let allCategorizedMemories = [];
+let currentCategoryFilter = "all";
 
-// DOM Elements
+// DOM Elements - Chat & Controls
 const chatFeed = document.getElementById("chatFeed");
 const chatForm = document.getElementById("chatForm");
 const chatInput = document.getElementById("chatInput");
@@ -17,9 +19,21 @@ const simKnownBtn = document.getElementById("simKnownBtn");
 const simNovelBtn = document.getElementById("simNovelBtn");
 const hintChips = document.querySelectorAll(".hint-chip");
 
-const safePlaybooksList = document.getElementById("safePlaybooksList");
-const mistakesList = document.getElementById("mistakesList");
-const policiesList = document.getElementById("policiesList");
+// Drawer Elements
+const memoryDrawerBtn = document.getElementById("memoryDrawerBtn");
+const memoryDrawer = document.getElementById("memoryDrawer");
+const drawerBackdrop = document.getElementById("drawerBackdrop");
+const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+const drawerMemoryList = document.getElementById("drawerMemoryList");
+const drawerSearchInput = document.getElementById("drawerSearchInput");
+const catTabs = document.querySelectorAll(".cat-tab");
+const memoryBadgeCount = document.getElementById("memoryBadgeCount");
+
+// Counter Spans
+const catCountAll = document.getElementById("catCountAll");
+const catCountPlaybooks = document.getElementById("catCountPlaybooks");
+const catCountMistakes = document.getElementById("catCountMistakes");
+const catCountPolicies = document.getElementById("catCountPolicies");
 
 // Modals
 const openTeachModalBtn = document.getElementById("openTeachModalBtn");
@@ -47,6 +61,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function setupEventListeners() {
+  // Drawer open / close
+  memoryDrawerBtn.addEventListener("click", openDrawer);
+  closeDrawerBtn.addEventListener("click", closeDrawer);
+  drawerBackdrop.addEventListener("click", closeDrawer);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeDrawer();
+      teachModal.classList.remove("open");
+      settingsModal.classList.remove("open");
+    }
+  });
+
+  // Drawer Category Tabs
+  catTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      catTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentCategoryFilter = tab.getAttribute("data-category");
+      renderFilteredDrawerCards();
+    });
+  });
+
+  // Drawer Search
+  drawerSearchInput.addEventListener("input", renderFilteredDrawerCards);
+
   // Simulations
   simKnownBtn.addEventListener("click", () => triggerOvernightSimulation("known_issue"));
   simNovelBtn.addEventListener("click", () => triggerOvernightSimulation("novel_issue"));
@@ -76,7 +116,9 @@ function setupEventListeners() {
   });
 
   // Teach Rule Modal
-  openTeachModalBtn.addEventListener("click", () => teachModal.classList.add("open"));
+  openTeachModalBtn.addEventListener("click", () => {
+    teachModal.classList.add("open");
+  });
   closeTeachModalBtn.addEventListener("click", () => teachModal.classList.remove("open"));
   saveRuleBtn.addEventListener("click", handleSaveRule);
 
@@ -84,6 +126,18 @@ function setupEventListeners() {
   settingsBtn.addEventListener("click", () => settingsModal.classList.add("open"));
   closeSettingsModalBtn.addEventListener("click", () => settingsModal.classList.remove("open"));
   saveSettingsBtn.addEventListener("click", handleSaveSettings);
+}
+
+
+// Drawer Open / Close
+function openDrawer() {
+  memoryDrawer.classList.add("open");
+  drawerBackdrop.classList.add("open");
+}
+
+function closeDrawer() {
+  memoryDrawer.classList.remove("open");
+  drawerBackdrop.classList.remove("open");
 }
 
 
@@ -157,7 +211,7 @@ function appendUserMessage(text) {
   bubble.className = "chat-bubble user-bubble";
   bubble.innerHTML = `
     <div class="bubble-header">
-      <span class="bubble-sender">You (Solo Developer)</span>
+      <span class="bubble-sender">You (Developer)</span>
       <span class="bubble-time">Just now</span>
     </div>
     <div class="bubble-body">
@@ -245,7 +299,7 @@ function showTypingIndicator() {
   typing.className = "chat-bubble bot-bubble";
   typing.innerHTML = `
     <div class="bubble-body" style="padding: 10px 16px; color: #64748b; font-style: italic;">
-      Guardian is querying Hindsight memory...
+      Guardian is querying Hindsight Cloud memory...
     </div>
   `;
   chatFeed.appendChild(typing);
@@ -263,73 +317,120 @@ async function loadMemories() {
   try {
     const res = await fetch("/api/memories");
     const data = await res.json();
-    const memories = data.memories || [];
-    renderMemoryCategories(memories);
+    const rawMemories = data.memories || [];
+    
+    categorizeMemories(rawMemories);
+    updateCategoryCounters();
+    renderFilteredDrawerCards();
   } catch (err) {
     console.error("Failed to load memories:", err);
   }
 }
 
-function renderMemoryCategories(memories) {
-  safePlaybooksList.innerHTML = "";
-  mistakesList.innerHTML = "";
-  policiesList.innerHTML = "";
 
-  memories.forEach(m => {
+function categorizeMemories(rawMemories) {
+  allCategorizedMemories = [];
+
+  rawMemories.forEach(m => {
     // 1. Safe Playbooks
     if (m.runbook_command && !m.tags?.includes("policy")) {
-      const card = document.createElement("div");
-      card.className = "memory-card";
-      card.innerHTML = `
-        <div class="memory-card-top">
-          <span class="memory-id">${m.incident_id}</span>
-          <span class="memory-stage">Auto-Allowed</span>
-        </div>
-        <div class="memory-title">${m.title}</div>
-        <div class="memory-body">${m.successful_resolution}</div>
-        <div class="memory-runbook"><code>${m.runbook_command}</code></div>
-      `;
-      safePlaybooksList.appendChild(card);
+      allCategorizedMemories.push({
+        id: m.incident_id || m.id,
+        category: "playbook",
+        categoryLabel: "Safe Playbook",
+        tagClass: "tag-playbook",
+        title: m.title,
+        body: m.successful_resolution || m.symptoms,
+        runbook: m.runbook_command,
+        raw: m
+      });
     }
 
     // 2. Mistakes to Avoid
     if (m.failed_attempts && m.failed_attempts.length > 0) {
       m.failed_attempts.forEach(fail => {
-        const card = document.createElement("div");
-        card.className = "memory-card";
-        card.style.borderLeft = "3px solid #ef4444";
-        card.innerHTML = `
-          <div class="memory-card-top">
-            <span class="memory-id">Anti-Pattern</span>
-            <span class="memory-stage" style="color: #ef4444;">Never Do This</span>
-          </div>
-          <div class="memory-body">${fail}</div>
-        `;
-        mistakesList.appendChild(card);
+        allCategorizedMemories.push({
+          id: `${m.incident_id || 'INC'}-Avoid`,
+          category: "mistake",
+          categoryLabel: "Avoid Mistake",
+          tagClass: "tag-mistake",
+          title: "Anti-Pattern Warning",
+          body: fail,
+          runbook: null,
+          raw: m
+        });
       });
     }
 
     // 3. Policies / Rules
     if (m.tags?.includes("policy") || m.tags?.includes("developer-rule")) {
-      const card = document.createElement("div");
-      card.className = "memory-card";
-      card.style.borderLeft = "3px solid #2563eb";
-      card.innerHTML = `
-        <div class="memory-card-top">
-          <span class="memory-id">${m.incident_id}</span>
-          <span class="memory-stage" style="color: #2563eb;">Policy</span>
-        </div>
-        <div class="memory-title">${m.title}</div>
-        <div class="memory-body">${m.root_cause}</div>
-      `;
-      policiesList.appendChild(card);
+      allCategorizedMemories.push({
+        id: m.incident_id || m.id,
+        category: "policy",
+        categoryLabel: "System Policy",
+        tagClass: "tag-policy",
+        title: m.title,
+        body: m.root_cause || m.symptoms,
+        runbook: null,
+        raw: m
+      });
     }
   });
+}
 
-  // Default fallbacks if empty
-  if (!safePlaybooksList.children.length) {
-    safePlaybooksList.innerHTML = `<div style="font-size:12px; color:#94a3b8;">No playbooks recorded yet.</div>`;
+
+function updateCategoryCounters() {
+  const total = allCategorizedMemories.length;
+  const playbooks = allCategorizedMemories.filter(m => m.category === "playbook").length;
+  const mistakes = allCategorizedMemories.filter(m => m.category === "mistake").length;
+  const policies = allCategorizedMemories.filter(m => m.category === "policy").length;
+
+  catCountAll.textContent = total;
+  catCountPlaybooks.textContent = playbooks;
+  catCountMistakes.textContent = mistakes;
+  catCountPolicies.textContent = policies;
+  memoryBadgeCount.textContent = total;
+}
+
+
+function renderFilteredDrawerCards() {
+  drawerMemoryList.innerHTML = "";
+  const query = drawerSearchInput.value.toLowerCase().trim();
+
+  const filtered = allCategorizedMemories.filter(item => {
+    const matchesCat = currentCategoryFilter === "all" || item.category === currentCategoryFilter;
+    const matchesQuery = !query || 
+      item.title.toLowerCase().includes(query) || 
+      item.body.toLowerCase().includes(query) ||
+      (item.runbook && item.runbook.toLowerCase().includes(query));
+    return matchesCat && matchesQuery;
+  });
+
+  if (!filtered.length) {
+    drawerMemoryList.innerHTML = `
+      <div style="text-align: center; color: #94a3b8; padding: 24px 12px; font-size: 13px;">
+        No memory records found matching criteria.
+      </div>
+    `;
+    return;
   }
+
+  filtered.forEach(item => {
+    const card = document.createElement("div");
+    card.className = `drawer-memory-card type-${item.category}`;
+
+    card.innerHTML = `
+      <div class="card-meta-top">
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #64748b;">${item.id}</span>
+        <span class="card-category-tag ${item.tagClass}">${item.categoryLabel}</span>
+      </div>
+      <div class="card-title-text">${item.title}</div>
+      <div class="card-body-text">${item.body}</div>
+      ${item.runbook ? `<div class="card-runbook-code"><code>${item.runbook}</code></div>` : ''}
+    `;
+
+    drawerMemoryList.appendChild(card);
+  });
 }
 
 
@@ -351,7 +452,7 @@ async function handleSaveRule() {
     const data = await res.json();
     teachModal.classList.remove("open");
     ruleText.value = "";
-    appendBotMessage(`I have committed your new rule to Hindsight memory: "${text}". I will enforce this rule going forward.`);
+    appendBotMessage(`I have committed your new rule to Hindsight Cloud memory: "${text}". I will enforce this rule going forward.`);
     loadMemories();
   } catch (err) {
     alert("Error saving rule: " + err.message);
