@@ -248,4 +248,6 @@ class MemoryManager:
         return True
 
     def get_all(self) -> List[Dict[str, Any]]:
+        if not self.local_memories:
+            self.local_memories = self._load_local_memories()
         return self.local_memories

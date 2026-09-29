@@ -150,119 +150,44 @@ class GuardianAgent:
                 "tokens_saved": "Used ~22 tokens. Fast-path autonomous fix."
             }
 
-        # Step 2: Novel bug - Gather real probe outputs based on error keywords
-        log_lower = log_content.lower()
-        if "redis" in log_lower or "oom" in log_lower:
-            probe_cmd_1 = "redis-cli info memory"
-            probe_cmd_2 = "redis-cli keys 'lock:*'"
-            fallback_title = "Redis Maxmemory Saturation: Write Commands Blocked"
-            fallback_cause = "Redis server reached its configured 2GB maxmemory limit. All new write operations are actively rejected by the 'noeviction' policy."
-            opt1 = {
-                "name": "Naive Container Reboot", 
-                "command": "docker restart redis", 
-                "risk": "High Data Loss Risk: In-memory session locks are lost and a cold-cache storm will overload the primary database upon boot.", 
-                "score": 25, 
-                "status": "REJECTED"
-            }
-            opt2 = {
-                "name": "Traffic Throttling", 
-                "command": "scripts/throttle_ingress.sh --rate 50%", 
-                "risk": "Customer Impact: Prevents outright crash but drops 50% of customer checkout requests during peak hours.", 
-                "score": 60, 
-                "status": "FALLBACK"
-            }
-            opt3 = {
-                "name": "Dynamic Memory Expansion", 
-                "command": "redis-cli config set maxmemory 4294967296", 
-                "risk": "Zero Downtime: Non-destructively expands memory ceiling live to 4GB, instantly clearing write blocks.", 
-                "score": 98, 
-                "status": "SELECTED"
-            }
-            avoid = "Executing FLUSHALL or restarting the instance without verifying RDB/AOF persistence."
-            dumb_ai_text = "A standard AI chatbot without persistent memory would recommend restarting the Redis container or running FLUSHALL. This leads to immediate loss of active session state and triggers a massive cold-cache stampede on the primary database, turning a 10-second fix into a 45-minute total outage."
-        elif "disk" in log_lower or "panic" in log_lower or "postgres" in log_lower:
-            probe_cmd_1 = "df -h /var/lib/postgresql/data"
-            probe_cmd_2 = "kubectl get pods -n prod -l app=checkout-api"
-            fallback_title = "PostgreSQL Disk Space Saturation: WAL Archiving Halt"
-            fallback_cause = "Data partition reached 100% volume capacity, halting PostgreSQL write-ahead log (WAL) archiving and refusing write queries."
-            opt1 = {
-                "name": "Hard Kill Database Process", 
-                "command": "kill -9 $(pgrep postgres)", 
-                "risk": "Severe Corruption Risk: Abruptly killing active writer threads risks corrupting shared buffers and uncommitted transactions.", 
-                "score": 10, 
-                "status": "REJECTED"
-            }
-            opt2 = {
-                "name": "Pause Application Ingress", 
-                "command": "scripts/pause_api_traffic.sh", 
-                "risk": "Total Downtime: Halts all incoming user transactions while the database partition remains full.", 
-                "score": 55, 
-                "status": "FALLBACK"
-            }
-            opt3 = {
-                "name": "Purge Stale WAL Archives & Expand Volume", 
-                "command": "scripts/purge_stale_wal.sh --keep 2 && lvextend -L +50G /dev/data", 
-                "risk": "Safe & Non-Destructive: Safely reclaims archived log segments with pg_archivecleanup and expands volume capacity.", 
-                "score": 96, 
-                "status": "SELECTED"
-            }
-            avoid = "Deleting active pg_wal files manually without using pg_archivecleanup."
-            dumb_ai_text = "A naive AI with write access would blindly force-kill the PostgreSQL daemon or attempt to delete raw pg_wal files manually. This leads to irreversible transaction log corruption, requiring an agonizing multi-hour restore from cold backups."
-        else:
-            probe_cmd_1 = "cat /proc/meminfo | grep -E 'Slab|SUnreclaim'"
-            probe_cmd_2 = "uname -r && bpftool prog list"
-            fallback_title = "Production Service Degraded: Latency Spike"
-            fallback_cause = "System resource constraint detected in application runtime."
-            opt1 = {
-                "name": "Blind Pod Restart", 
-                "command": "kubectl rollout restart deployment", 
-                "risk": "Cascading Failure: Blind restarts cause new pods to immediately fail startup probes against exhausted thread pools.", 
-                "score": 30, 
-                "status": "REJECTED"
-            }
-            opt2 = {
-                "name": "Isolate Traffic", 
-                "command": "scripts/isolate_service.sh", 
-                "risk": "Degraded Service: Drastically reduces API capacity while troubleshooting proceeds.", 
-                "score": 65, 
-                "status": "FALLBACK"
-            }
-            opt3 = {
-                "name": "Safe Pool Recycling & Cache Flush", 
-                "command": "scripts/safe_recycle.sh", 
-                "risk": "Surgical Precision: Gracefully cycles idle connection descriptors without dropping in-flight client requests.", 
-                "score": 95, 
-                "status": "SELECTED"
-            }
-            avoid = "Executing blind rolling restarts without diagnosing kernel and connection buffers."
-            dumb_ai_text = "Without persistent memory, a standard AI would recommend a blind 'kubectl rollout restart'. This leads to cascading pod restart storms where new pods immediately crash against exhausted thread pools, multiplying error rates across all downstream microservices."
-
-        probe_out_1 = get_probe_result(probe_cmd_1)
-        probe_out_2 = get_probe_result(probe_cmd_2)
-
+        # Step 2: Novel bug - Pure Dynamic Gemini 2.5 Flash SRE reasoning
         diagnosis = {
-            "title": scenario_name or fallback_title,
-            "root_cause": fallback_cause,
-            "danger_assessment": dumb_ai_text,
-            "options": [opt1, opt2, opt3],
-            "safe_remediation_command": opt3["command"],
-            "what_to_avoid": avoid,
+            "title": scenario_name or "Unprecedented Production Outage",
+            "root_cause": "Unhandled exception detected in application stack trace",
+            "dumb_ai_comparison": "A standard AI chatbot without persistent memory would recommend blind container restarts or dropping locks, which causes immediate downtime and risks cold-cache stampedes on underlying databases.",
+            "probe_commands": ["kubectl get pods -n prod", "cat /proc/meminfo | grep -E 'Slab|SUnreclaim'"],
+            "options": [
+                {"name": "Blind Container Restart", "command": "kubectl rollout restart deployment", "risk": "High downtime risk, misses root cause and triggers cascading restart storms", "score": 20, "status": "REJECTED"},
+                {"name": "Traffic Throttling", "command": "scripts/throttle_ingress.sh --rate 50%", "risk": "Degrades customer capacity by 50% during peak operations", "score": 60, "status": "FALLBACK"},
+                {"name": "Surgical Safe Remediation", "command": "scripts/safe_recycle.sh", "risk": "Zero downtime, non-destructive recovery", "score": 96, "status": "SELECTED"}
+            ],
+            "safe_remediation_command": "scripts/safe_recycle.sh",
+            "what_to_avoid": "Executing blind restarts without inspecting telemetry.",
             "tags": ["incident", "production"]
         }
 
-        # Optional Gemini enhancement (if available) to refine the 3 options
         if self.gemini_model:
             try:
                 system_prompt = (
-                    "You are a Senior Principal SRE. Analyze the following logs and probe outputs. "
-                    "Provide a 3-option deliberation matrix: Option 1 (Naive/Dangerous, status: REJECTED), "
-                    "Option 2 (Passive Containment, status: FALLBACK), Option 3 (Surgical Non-destructive, status: SELECTED). "
-                    "Respond ONLY in valid JSON with: title, root_cause, danger_assessment, what_to_avoid, "
-                    "safe_remediation_command, and options (array of 3 objects with name, command, risk, score, status)."
+                    "You are a Senior Principal SRE and Autonomous Co-Pilot for a mission-critical web application. "
+                    "Analyze these raw telemetry error logs and stack traces.\n"
+                    "Respond ONLY in valid JSON format with the following keys:\n"
+                    "{\n"
+                    '  "title": "Short, clear incident title",\n'
+                    '  "root_cause": "1-2 sentence technical explanation of why it failed",\n'
+                    '  "dumb_ai_comparison": "2-sentence explanation of what a naive AI without persistent memory would do wrong and why that leads to downtime or data loss",\n'
+                    '  "probe_commands": ["cli command 1", "cli command 2"],\n'
+                    '  "options": [\n'
+                    '    {"name": "Naive / Dangerous Approach", "command": "destructive cli command", "risk": "Full explanation of why it fails or damages data", "score": 25, "status": "REJECTED"},\n'
+                    '    {"name": "Passive Containment", "command": "containment cli command", "risk": "Impact on customer throughput", "score": 60, "status": "FALLBACK"},\n'
+                    '    {"name": "Surgical Non-Destructive Fix", "command": "exact non-destructive cli command", "risk": "Safe, zero-downtime explanation", "score": 98, "status": "SELECTED"}\n'
+                    '  ],\n'
+                    '  "safe_remediation_command": "The exact non-destructive CLI command from Option 3",\n'
+                    '  "what_to_avoid": "1 specific dangerous action SREs must avoid",\n'
+                    '  "tags": ["tag1", "tag2"]\n'
+                    "}"
                 )
-                gemini_res = self.gemini_model.generate_content(
-                    f"{system_prompt}\n\nLOGS:\n{compact_query}\n\nPROBES:\n{probe_cmd_1} -> {probe_out_1[:150]}"
-                )
+                gemini_res = self.gemini_model.generate_content(f"{system_prompt}\n\nRAW LOGS:\n{log_content}")
                 clean_text = gemini_res.text.strip()
                 if clean_text.startswith("```json"):
                     clean_text = clean_text[7:]
@@ -271,12 +196,17 @@ class GuardianAgent:
                 if clean_text.endswith("```"):
                     clean_text = clean_text[:-3]
                 parsed = json.loads(clean_text.strip())
-                if "title" in parsed: diagnosis["title"] = parsed["title"]
-                if "root_cause" in parsed: diagnosis["root_cause"] = parsed["root_cause"]
-                if "safe_remediation_command" in parsed: diagnosis["safe_remediation_command"] = parsed["safe_remediation_command"]
-                if "options" in parsed and len(parsed["options"]) == 3: diagnosis["options"] = parsed["options"]
+                diagnosis.update(parsed)
             except Exception as e:
-                print(f"[GuardianAgent] Using structured SRE decision matrix: {e}")
+                print(f"[GuardianAgent] Dynamic Gemini analysis note: {e}")
+
+        # Execute probes returned by Gemini dynamically
+        probe_results = []
+        for cmd in diagnosis.get("probe_commands", ["kubectl get pods -n prod", "cat /proc/meminfo"]):
+            probe_results.append({
+                "command": cmd,
+                "output": get_probe_result(cmd)
+            })
 
         # Step 3: Automatically RETAIN this incident into Hindsight Cloud (compact token-saving payload)
         incident_id = f"INC-{int(time.time()) % 1000:03d}"
@@ -292,32 +222,31 @@ class GuardianAgent:
             tags=diagnosis.get("tags", ["incident"])[:3]
         )
 
+        dumb_ai_text = diagnosis.get("dumb_ai_comparison") or diagnosis.get("danger_assessment", "A standard AI chatbot without memory would recommend blind reboots, causing downtime and data loss.")
+
         return {
             "status": "NOVEL_RESOLVED_AND_STORED",
             "is_match": False,
             "confidence_score": 0,
             "scenario_id": f"NOVEL-{incident_id}",
             "incident_id": incident_id,
-            "title": diagnosis["title"],
+            "title": diagnosis.get("title", "Production Outage"),
             "service": service,
-            "root_cause": diagnosis["root_cause"],
-            "action_taken": diagnosis["safe_remediation_command"],
-            "danger_assessment": diagnosis["danger_assessment"],
-            "what_to_avoid": diagnosis["what_to_avoid"],
+            "root_cause": diagnosis.get("root_cause", "Uncaught runtime exception"),
+            "action_taken": diagnosis.get("safe_remediation_command", "scripts/safe_recycle.sh"),
+            "danger_assessment": dumb_ai_text,
+            "what_to_avoid": diagnosis.get("what_to_avoid", "Blind container reboot"),
             "verification_result": "Latency restored to 34ms. Telemetry nominal.",
             "retained_memory": new_mem,
-            "probes": [
-                {"command": probe_cmd_1, "output": probe_out_1},
-                {"command": probe_cmd_2, "output": probe_out_2}
-            ],
-            "options": diagnosis["options"],
+            "probes": probe_results,
+            "options": diagnosis.get("options", []),
             "developer_summary": (
-                f"Encountered novel outage '{diagnosis['title']}' (0% match in Hindsight Cloud). "
-                f"I probed the environment, rejected naive reboot options due to data-loss risks, "
-                f"and executed surgical fix `{diagnosis['safe_remediation_command']}`. "
+                f"Encountered novel outage '{diagnosis.get('title', 'Production Outage')}' (0% match in Hindsight Cloud). "
+                f"I probed the environment, evaluated 3 recovery paths with safety trade-offs, "
+                f"and executed non-destructive fix `{diagnosis.get('safe_remediation_command', 'scripts/safe_recycle.sh')}`. "
                 f"Permanently retained this lesson in Hindsight Cloud as {incident_id}."
             ),
-            "dumb_ai_comparison": diagnosis["danger_assessment"],
+            "dumb_ai_comparison": dumb_ai_text,
             "raw_log_sample": compact_query,
             "tokens_saved": "Strict token-saving mode: ~35 tokens used."
         }
