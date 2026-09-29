@@ -3,294 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aegis Guardian — SRE Incident Assistant with Hindsight Cloud</title>
-  <meta name="description" content="AI SRE assistant for solo developers and teams, using Hindsight persistent memory as an autonomy safety gate.">
+  <title>MindSupport AI - Persistent Memory & Behavioral Dispatch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="light-theme">
 
-  <!-- Top Navbar -->
-  <header class="navbar">
-    <div class="nav-brand">
-      <span class="brand-title">Aegis Guardian</span>
-      <span class="brand-divider">/</span>
-      <span class="brand-tag">SRE On-Call Co-Pilot</span>
+  <!-- TOP MINIMAL HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <div class="logo-icon">🧠</div>
+        <div class="logo-text">
+          <h1>MindSupport <span class="badge-ai">AI</span></h1>
+        </div>
+      </div>
     </div>
 
-    <div class="nav-status">
-      <span class="status-badge status-healthy">
-        <span class="dot"></span> Monitoring: api.production.app/health
-      </span>
+    <!-- Active User Selector in Header -->
+    <div class="header-center">
+      <div class="user-select-pill" id="user-dropdown-btn">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=TonyStarkVIP" alt="Avatar" id="header-user-avatar" class="header-user-avatar">
+        <div class="user-pill-info">
+          <strong id="header-user-name">Tony Stark</strong>
+          <span id="header-user-phone">+1 (512) 555-0192</span>
+        </div>
+        <span class="dropdown-arrow">▾</span>
+      </div>
+
+      <!-- User Dropdown Menu -->
+      <div class="user-dropdown-menu" id="user-dropdown-menu">
+        <!-- Injected by JS -->
+      </div>
     </div>
 
-    <div class="nav-actions">
-      <!-- Hamburger Menu for Memory Bank -->
-      <button id="memoryDrawerBtn" class="btn btn-secondary btn-sm" title="View Hindsight Memory Bank">
-        <span class="hamburger-bars">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-        <span>Memory Bank</span>
-        <span id="memoryBadgeCount" class="nav-count-pill">4</span>
+    <div class="header-right">
+      <!-- Interactive Mode Toggle: Hindsight Copilot vs Standard Chatbot -->
+      <button class="btn-mode-toggle mode-hindsight" id="btn-mode-toggle" title="Click to toggle between Hindsight Copilot and Standard Chatbot mode">
+        <span class="mode-dot"></span>
+        <span class="mode-text" id="mode-text">Hindsight Active</span>
+        <span class="mode-badge" id="mode-badge">AI Copilot</span>
       </button>
 
-      <button id="voiceToggleBtn" class="btn btn-secondary btn-sm">Voice: Off</button>
-      <button id="clearChatBtn" class="btn btn-secondary btn-sm" title="Clear chat history">Clear Chat</button>
+      <button class="btn-clear" id="btn-clear-chat" title="Reset chat session">
+        🔄 Reset Session
+      </button>
     </div>
   </header>
 
-  <!-- Centered Chat Container -->
-  <div class="main-container">
+  <!-- CLEAN CENTERED CHAT CONTAINER -->
+  <main class="chat-container">
     
-    <main class="chat-section">
-      
-      <!-- Clean Simulation Control Bar -->
-      <div class="simulation-banner">
-        <span class="simulation-label">Outage Testing:</span>
-        <div class="simulation-actions">
-          <button id="openSimModalBtn" class="btn btn-primary btn-sm">
-            Incident Lab (Real Logs)
-          </button>
-          <span class="simulation-hint">Inject real bug logs, watch agent diagnose, retain to Hindsight Cloud, and test recurrence</span>
-        </div>
+    <!-- User Quick Info Bar -->
+    <div class="user-info-strip">
+      <div class="info-strip-item">
+        <span class="strip-label">Simulating As:</span>
+        <strong id="strip-name">Tony Stark</strong>
+        <span class="strip-tag" id="strip-plan">Gold Rewards</span>
       </div>
-
-      <!-- Chat Feed -->
-      <div id="chatFeed" class="chat-feed">
-        
-        <!-- Fresh Clean Welcome Message -->
-        <div class="chat-bubble bot-bubble">
-          <div class="bubble-header">
-            <span class="bubble-sender">Aegis Guardian</span>
-            <span class="bubble-time">Just now</span>
-          </div>
-          <div class="bubble-body">
-            <p>Good morning! I am actively monitoring your production services with <strong>Gemini 2.5 Flash</strong> and <strong>Hindsight Cloud</strong> (Bank: <code>production-app</code>).</p>
-            <p>All services are healthy (latency: 38ms). Click <strong>Try Simulation</strong> above to test an outage scenario, ask any question below, or view the <strong>Memory Bank</strong>.</p>
-          </div>
-        </div>
-
+      <div class="info-strip-item">
+        <span class="strip-label">Phone:</span>
+        <span id="strip-phone">+1 (512) 555-0192</span>
       </div>
-
-      <!-- Chat Input Area -->
-      <div class="chat-input-area">
-        <form id="chatForm" class="chat-input-form">
-          <input 
-            type="text" 
-            id="chatInput" 
-            class="chat-input-field" 
-            placeholder="Ask a question (e.g. 'Why shouldn't I restart pods?') or type 'remember: rule'..." 
-            autocomplete="off"
-          >
-          <button type="submit" class="btn btn-primary">Send</button>
-        </form>
-        <div class="chat-hints">
-          <span>Quick questions:</span>
-          <button class="hint-chip" data-prompt="What happened overnight?">What happened overnight?</button>
-          <button class="hint-chip" data-prompt="Why shouldn't I restart checkout pods?">Why not restart pods?</button>
-          <button class="hint-chip" data-prompt="What are our safe playbooks?">What are our safe playbooks?</button>
-        </div>
+      <div class="info-strip-item">
+        <span class="strip-label">Address:</span>
+        <span id="strip-address">10880 Malibu Point, Austin, TX</span>
       </div>
-    </main>
-
-  </div>
-
-  <!-- Incident Lab & Real Outage Testing Modal -->
-  <div id="simModal" class="modal-overlay">
-    <div class="modal-card modal-card-wide">
-      <div class="modal-header">
-        <div>
-          <h3 class="modal-title">Incident Lab: Real Log Testing & Hindsight Learning</h3>
-          <p class="modal-desc" style="margin: 4px 0 0 0;">Feed real outage logs with bugs into Guardian. Watch it diagnose with Gemini, retain the fix to Hindsight Cloud, and test what happens when that exact bug returns.</p>
-        </div>
-        <button id="closeSimModalBtn" class="btn-close">&times;</button>
+      <div class="info-strip-item">
+        <span class="strip-label">Orders:</span>
+        <span id="strip-orders">4 Orders (PS5, OLED TV, Bose, Earrings)</span>
       </div>
-
-      <!-- Tab Switcher -->
-      <div class="modal-tab-bar">
-        <button class="modal-tab-btn active" id="tabPresetLogs">Real Outage Scenarios</button>
-        <button class="modal-tab-btn" id="tabCustomLogs">Paste Custom Logs</button>
+      <div class="info-strip-item">
+        <span class="strip-label">Store Credit / Wallet:</span>
+        <strong id="strip-wallet" style="color:var(--emerald); background:#ecfdf5; padding:2px 8px; border-radius:9999px; border:1px solid #a7f3d0; font-family:var(--font-mono);">$0.00</strong>
       </div>
-
-      <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
-        
-        <!-- Preset Real Outage Logs Panel -->
-        <div id="panelPresetLogs" class="lab-panel active">
-          
-          <!-- Bug Scenario 1: Redis OOM (Novel -> Learns -> Re-test) -->
-          <div class="sim-card-choice" style="margin-bottom: 14px;">
-            <div class="flex-between">
-              <span class="choice-badge badge-blue">Live Test: Novel Bug &rarr; Learned</span>
-              <span class="tech-tag">Redis &bull; Celery &bull; Checkout</span>
-            </div>
-            <div class="choice-title" style="margin-top: 6px;">Redis OOM: maxmemory Exceeded by Unbounded Cache</div>
-            <p class="choice-desc">Application hits <code>OOM command not allowed when used memory > maxmemory (2GB)</code>. Guardian performs live first-principles diagnosis via Gemini, avoids destructive reboots, and commits the lesson to Hindsight Cloud.</p>
-            
-            <details class="log-details-toggle">
-              <summary>View Raw Stack Trace</summary>
-              <pre class="raw-log-preview"><code>[2026-09-29 03:14:22] redis-server[2819]: OOM command not allowed when used memory > 'maxmemory' (2097152000 bytes)
-[2026-09-29 03:14:22] celery.worker.consumer[102]: celery.exceptions.OperationalError: Error 500: OOM command not allowed
-Traceback (most recent call last):
-  File "/app/services/checkout.py", line 88, in reserve_stock
-    redis_client.setex(f"stock_lock:{sku}", 300, order_id)
-redis.exceptions.ResponseError: OOM command not allowed when used memory > 'maxmemory'.</code></pre>
-            </details>
-
-            <div class="sim-action-row" style="margin-top: 10px; display: flex; gap: 8px;">
-              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="redis_oom">1. Analyze & Learn Live Bug</button>
-              <button class="btn btn-secondary btn-sm btn-retest-preset" data-preset="redis_oom">2. Trigger Same Bug Again</button>
-            </div>
-          </div>
-
-          <!-- Bug Scenario 2: Postgres Disk Full & WAL Archiving Panic -->
-          <div class="sim-card-choice" style="margin-bottom: 14px;">
-            <div class="flex-between">
-              <span class="choice-badge badge-blue">Live Test: Novel DB Panic</span>
-              <span class="tech-tag">Postgres &bull; Disk &bull; WAL</span>
-            </div>
-            <div class="choice-title" style="margin-top: 6px;">PostgreSQL Disk Volume Full: WAL Archiving Panic</div>
-            <p class="choice-desc">Database hits <code>PANIC: could not write to file "pg_wal/xlogtemp": No space left on device</code>. Guardian isolates write traffic, purges stale WAL segment archives, and commits the fix to memory.</p>
-            
-            <details class="log-details-toggle">
-              <summary>View Raw Stack Trace</summary>
-              <pre class="raw-log-preview"><code>[2026-09-29 04:02:11] postgres[18221]: [3-1] PANIC: could not write to file "pg_wal/xlogtemp.18221": No space left on device
-[2026-09-29 04:02:12] postgres[18221]: [3-2] HINT: Check free disk space on data partition (/var/lib/postgresql/data).
-[2026-09-29 04:02:15] app.db.pool[901]: asyncpg.exceptions.DiskFullError: disk full: 99.8% volume capacity reached</code></pre>
-            </details>
-
-            <div class="sim-action-row" style="margin-top: 10px; display: flex; gap: 8px;">
-              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="postgres_disk">1. Analyze & Learn Live Bug</button>
-              <button class="btn btn-secondary btn-sm btn-retest-preset" data-preset="postgres_disk">2. Trigger Same Bug Again</button>
-            </div>
-          </div>
-
-          <!-- Bug Scenario 3: Baseline Playbook: INC-104 -->
-          <div class="sim-card-choice">
-            <div class="flex-between">
-              <span class="choice-badge badge-green">Baseline Battle-Tested Playbook</span>
-              <span class="tech-tag">Matches INC-104 (94%)</span>
-            </div>
-            <div class="choice-title" style="margin-top: 6px;">Checkout Connection Pool Exhaustion (504 Timeout)</div>
-            <p class="choice-desc">Asyncpg connection acquisition timeout. Hindsight immediately matches this with 94% confidence to past incident INC-104 and executes the autonomous lock flush.</p>
-            
-            <details class="log-details-toggle">
-              <summary>View Raw Stack Trace</summary>
-              <pre class="raw-log-preview"><code>HTTP 504: Upstream DB connection pool exhausted. Active: 150/150, Waiting threads: 842.
-Traceback (most recent call last):
-  File "/app/routes/checkout.py", line 142, in process_payment
-    async with db.pool.acquire(timeout=15.0) as conn:
-asyncpg.exceptions.PoolTimeoutError: connection acquisition timeout: pool exhausted</code></pre>
-            </details>
-
-            <div class="sim-action-row" style="margin-top: 10px;">
-              <button class="btn btn-primary btn-sm btn-run-preset" data-preset="checkout_pool">Simulate Incident Telemetry</button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Custom Logs Panel -->
-        <div id="panelCustomLogs" class="lab-panel" style="display: none;">
-          <p class="modal-desc">Paste any real error logs or stack trace from your terminal or production server. Aegis Guardian will query Hindsight Cloud for prior matches or perform first-principles Gemini diagnosis and retain it into memory.</p>
-          <div class="form-group" style="margin-top: 10px;">
-            <label class="form-label">Service Name</label>
-            <input type="text" id="customLogService" class="form-input" value="api.production.app" placeholder="e.g. billing-worker">
-          </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label class="form-label">Raw Logs / Stack Trace</label>
-            <textarea id="customLogText" class="form-textarea" rows="7" placeholder="Paste error logs, exception tracebacks, or system alerts here..."></textarea>
-          </div>
-          <button id="btnAnalyzeCustomLog" class="btn btn-primary btn-sm btn-block" style="margin-top: 12px;">Analyze Logs with Guardian</button>
-        </div>
-
+      <div class="info-strip-item">
+        <span class="strip-label">CRM Tickets:</span>
+        <strong id="strip-tickets" style="color:var(--primary); background:#eef2ff; padding:2px 8px; border-radius:9999px; border:1px solid #c7d2fe; font-family:var(--font-mono);">5</strong>
       </div>
     </div>
-  </div>
 
-  <!-- Slide-Out Memory Bank Drawer (Opened via Hamburger Menu) -->
-  <div id="drawerBackdrop" class="drawer-backdrop"></div>
-  <aside id="memoryDrawer" class="memory-drawer">
-    
+    <!-- Legacy Mode Notice Banner (Smoothly shown only when standard bot mode is active) -->
+    <div class="legacy-banner" id="legacy-banner" style="display:none;">
+      <span class="legacy-banner-dot">🔴</span>
+      <span><strong>Standard Chatbot Mode (Stateless):</strong> Hindsight persistent memory & behavioral routing are disabled. The bot will ask for your name and order ID every time.</span>
+    </div>
+
+    <!-- Messages Scroll Area -->
+    <div class="messages-viewport" id="chat-messages">
+      <!-- Injected by JavaScript -->
+    </div>
+
+    <!-- Minimal Prompt Chips -->
+    <div class="quick-chips-wrapper" id="quick-chips-wrapper">
+      <span class="chips-title">Suggested:</span>
+      <div class="chips-container" id="chips-container">
+        <!-- Injected dynamically per user -->
+      </div>
+    </div>
+
+    <!-- Minimal Chat Input Bar -->
+    <div class="chat-input-area">
+      <form id="chat-form" class="chat-form">
+        <input 
+          type="text" 
+          id="chat-input" 
+          placeholder="Ask a question, request a voice call, or test past ticket history..." 
+          autocomplete="off"
+          required
+        >
+        <button type="submit" id="btn-send" class="btn-send">
+          <span>Send</span>
+          <span class="arrow">➔</span>
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ON-DEMAND DETAILS DRAWER -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="details-drawer" id="details-drawer">
     <div class="drawer-header">
       <div>
-        <div class="flex-row-center">
-          <h2 class="drawer-title">Hindsight Memory Bank</h2>
-          <span class="cloud-pill">Cloud Live</span>
-        </div>
-        <p class="drawer-subtitle">Bank: <strong>production-app</strong></p>
+        <h2>🔍 How Agent Solved This</h2>
+        <p>Specific Hindsight memories, telemetry & behavioral routing pulled for this turn</p>
       </div>
-      <button id="closeDrawerBtn" class="btn-icon" title="Close Drawer">&times;</button>
+      <button class="btn-close" id="btn-close-drawer">✕</button>
     </div>
-
-    <!-- Safety Banner -->
-    <div class="safety-banner">
-      <strong>Memory-Gated Autonomy:</strong>
-      <p>I only auto-fix crashes while you sleep if Hindsight Cloud has a <em>verified playbook</em> (90%+ confidence). Novel issues are safely held for human review.</p>
+    <div class="drawer-body" id="drawer-body">
+      <!-- Injected when user clicks "View How Agent Solved This" -->
     </div>
-
-    <!-- Category Tabs -->
-    <div class="category-tabs">
-      <button class="cat-tab active" data-category="all">All (<span id="catCountAll">0</span>)</button>
-      <button class="cat-tab" data-category="playbook">Safe Playbooks (<span id="catCountPlaybooks">0</span>)</button>
-      <button class="cat-tab" data-category="mistake">Avoid Mistakes (<span id="catCountMistakes">0</span>)</button>
-      <button class="cat-tab" data-category="policy">Policies (<span id="catCountPolicies">0</span>)</button>
-    </div>
-
-    <!-- Actions & Search -->
-    <div class="drawer-actions">
-      <input type="text" id="drawerSearchInput" class="drawer-search-input" placeholder="Search memory records...">
-      <button id="openTeachModalBtn" class="btn btn-primary btn-sm">+ Teach Rule</button>
-      <button id="clearAllMemoriesBtn" class="btn btn-secondary btn-sm" title="Clear all memories">Clear All</button>
-    </div>
-
-    <!-- Memory Records List -->
-    <div id="drawerMemoryList" class="drawer-cards-scroll">
-      <!-- Dynamically populated via app.js -->
-    </div>
-
   </aside>
 
-  <!-- Teach Rule Modal with "Other" Custom Category -->
-  <div id="teachModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 class="modal-title">Teach Guardian a New Rule</h3>
-        <button id="closeTeachModalBtn" class="btn-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">This rule will be saved directly into your <strong>Hindsight Cloud</strong> memory bank so the agent adheres to it during future incidents.</p>
-        
-        <div class="form-group">
-          <label for="ruleCategory">Category:</label>
-          <select id="ruleCategory" class="input-select">
-            <option value="Database Policy">Database Policy</option>
-            <option value="Deployment Rule">Deployment Rule</option>
-            <option value="Security & Secrets">Security & Secrets</option>
-            <option value="Third-Party Integration">Third-Party Integration</option>
-            <option value="Other">Other (Type custom category below)</option>
-          </select>
-        </div>
-
-        <!-- Custom Category Input (shown when "Other" is chosen) -->
-        <div class="form-group" id="customCategoryGroup" style="display: none;">
-          <label for="customCategoryInput">Custom Category Name:</label>
-          <input type="text" id="customCategoryInput" class="input-text" placeholder="e.g. Rate Limiting Policy, Cache Rule">
-        </div>
-
-        <div class="form-group">
-          <label for="ruleText">Rule / Knowledge Description:</label>
-          <textarea id="ruleText" rows="3" class="input-textarea" placeholder="e.g. Always cap PostgreSQL connection pool to 100, because AWS RDS micro instance will run out of memory otherwise."></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="saveRuleBtn" class="btn btn-primary">Save to Hindsight Cloud</button>
-      </div>
-    </div>
-  </div>
+  <!-- Toast -->
+  <div class="toast-container" id="toast"></div>
 
   <script src="app.js"></script>
 </body>

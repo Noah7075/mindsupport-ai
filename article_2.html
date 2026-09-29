@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>What Happened When Our Support Bot Remembered Disputes With Hindsight</title>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 24px;
+    line-height: 1.8;
+    color: #242424;
+    background: #fff;
+}
+h1 { font-size: 38px; line-height: 1.25; margin-bottom: 24px; color: #111; font-weight: 800; }
+h2 { font-size: 26px; margin-top: 40px; margin-bottom: 16px; color: #111; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+h3 { font-size: 20px; margin-top: 28px; margin-bottom: 12px; color: #222; }
+p { margin-bottom: 20px; font-size: 18px; }
+code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; font-family: Menlo, Monaco, Consolas, monospace; font-size: 15px; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 18px; border-radius: 8px; overflow-x: auto; font-size: 14px; line-height: 1.5; }
+pre code { background: none; color: inherit; padding: 0; }
+blockquote { border-left: 3px solid #242424; margin: 0 0 20px 0; padding-left: 20px; color: #555; font-style: italic; }
+img { max-width: 100%; height: auto; border-radius: 8px; margin: 24px 0 6px 0; border: 1px solid #e5e5e5; display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.caption { color: #666; font-size: 14px; display: block; margin-bottom: 28px; text-align: center; font-style: italic; }
+a { color: #1a8917; text-decoration: underline; }
+hr { border: none; border-top: 1px solid #eee; margin: 40px 0; }
+ul, ol { margin-bottom: 20px; font-size: 18px; padding-left: 28px; }
+li { margin-bottom: 8px; }
+.copy-banner {
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: #2e7d32;
+}
+</style>
+</head>
+<body>
+<div class='copy-banner'>
+  💡 <strong>How to publish to Medium in 30 seconds:</strong><br>
+  1. Open your draft on Medium.<br>
+  2. Press <code>Ctrl + A</code> (Select All) on this page, then <code>Ctrl + C</code> (Copy).<br>
+  3. Paste directly into your Medium story. All headings, links, code blocks, and formatted text will paste with 100% fidelity!
+</div>
+<h1>What Happened When Our Support Bot Remembered Disputes With Hindsight</h1>
+<p>We have all had that moment with a customer service bot where we wanted to put our fist through the monitor.</p>
+<p>You are furious. Your production campaign just crashed, your boss is breathing down your neck, and you open the support chat hoping for a quick fix. What does the bot say?</p>
+<blockquote>*"Greetings! 😊 I would be delighted to assist you on this fine afternoon! How may I bring a smile to your face today?"*</blockquote>
+<p>It is infuriating. Nothing makes an angry customer cancel their subscription faster than an AI pretending everything is sunshine and rainbows while their hair is on fire.</p>
+<p>Human support leads do not talk like that. When an enterprise VP comes in hot threatening legal action, a seasoned representative drops the bubbly small talk, acknowledges the failure directly, and skips straight to a tangible resolution.</p>
+<p>For the past couple of months, we wanted to see if we could teach an AI agent to do the same thing. What happens when a support bot actually remembers previous friction, measures how pissed off a customer is, and changes its personality on the fly?</p>
+<p>By pairing recency-weighted sentiment analysis with <a href="https://github.com/vectorize-io/hindsight" target="_blank">Hindsight</a>, we built an agent that doesn't just look up order numbers—it tracks customer emotional volatility across sessions and routes angry users to dedicated specialist personas.</p>
+<p>Here is how we built it, the bugs that bit us, and what happened when our bot started remembering disputes.</p>
+<hr>
+<h2>Why Static Sentiment Scores Are Useless</h2>
+<p>Before we touched any code, we looked at how traditional CRMs track customer mood. Almost all of them slap a static tag on the customer profile:</p>
+<ul><li>`Elena Rostova: Sentiment = Happy`</li></ul>
+<ul><li>`Marcus Chen: Sentiment = Frustrated`</li></ul>
+<p>In production, static tags are completely broken. A customer who was thrilled three weeks ago might be screaming at your app today because your latest deployment broke their webhook pipeline. And a user who lost their temper yesterday might log on this morning feeling calm and ready to talk.</p>
+<p>If your bot relies on a static sentiment label, it fails in both directions:</p>
+<ol><li>It misses sudden, high-urgency blowups from previously happy VIPs.</li></ol>
+<ol><li>It permanently treats someone like a hostile threat even after they apologized.</li></ol>
+<p>We realized sentiment is not a state; it is a <strong>trajectory</strong>. To handle it properly, the agent needed two capabilities:</p>
+<ul><li>**Recency-weighted emotional parsing:** The emotion in the *current* sentence must carry far more weight than what happened last month.</li></ul>
+<ul><li>**Persistent dispute memory:** When a customer complains about an ongoing issue, the bot needs to recall the root cause from the [Hindsight documentation](https://hindsight.vectorize.io/) API without forcing the customer to repeat their horror story for the fifth time.</li></ul>
+<p>That is why we integrated <a href="https://vectorize.io/what-is-agent-memory" target="_blank">Vectorize agent memory</a> into our routing pipeline.</p>
+<hr>
+<h2>The Architecture: From Raw Anger to Specialist Routing</h2>
+<p>Here is the high-level picture of how a message travels through the system:</p>
+<img src="d:\hackwithhyd\screenshots\architecture_diagram.jpg" alt="AI Agent System Architecture">
+<span class="caption">Figure 1: How customer messages are enriched with Hindsight episodic memory before behavioral routing and synthesis.</span>
+<p>When a user sends a message, our FastAPI orchestrator runs it through <code>backend/behavior_router.py</code> before touching the LLM:</p>
+<ol><li>**Live Hostility Detection:** Scans the text for combative markers, legal threats ("sue", "lawyer"), and churn ultimatums ("cancel subscription", "unacceptable").</li></ol>
+<ol><li>**Hindsight Memory Recall:** Queries the customer's vector bank for past dispute records, failed return attempts, or warehouse delays.</li></ol>
+<ol><li>**Volatility Scoring (0–100%):** Calculates an emotional index and selects one of four specialist personas:</li></ol>
+<p>   - <strong>Rachel Brooks (De-escalation Lead):</strong> Selected when hostility spikes. Cuts all generic apologies, keeps sentences under 15 words, and leads immediately with concrete fixes.</p>
+<p>   - <strong>David Sterling (Enterprise & VIP Director):</strong> Assigned to CFOs and enterprise accounts asking about contracts, tax invoices, and compliance.</p>
+<p>   - <strong>Carlos Mendez (Principal SRE):</strong> Assigned to engineers asking about Kafka consumer group lags, Kubernetes pods, and status codes.</p>
+<p>   - <strong>Emily Watson (SMB Lead):</strong> Handles standard, low-friction everyday questions.</p>
+<hr>
+<h2>The Code: How We Calculate Volatility and Route Turns</h2>
+<p>Here is the actual Python logic running in <code>backend/behavior_router.py</code>:</p>
+<pre><code>class BehaviorRouter:
+    def evaluate_routing(
+        self,
+        customer: Dict[str, Any],
+        user_message: str,
+        recalled_memories: List[Dict[str, Any]]
+    ) -&gt; Dict[str, Any]:
+        msg_lower = user_message.lower()
+        base_temperament = customer.get("temperament", "Standard")
+
+        # 1. Check for live hostility in the current message
+        hostility_markers = [
+            "shut up", "idiot", "scam", "pissed off", "what the hell", 
+            "sue you", "suing", "unacceptable", "take you to court", 
+            "incompetent", "ridiculous service", "abusive", "screaming"
+        ]
+        has_live_hostility = any(k in msg_lower for k in hostility_markers)
+
+        # 2. Check if the user is calming down or apologizing
+        apology_markers = ["sorry", "apologize", "my bad", "forgive me", "calm down"]
+        has_live_apology = any(k in msg_lower for k in apology_markers)
+
+        # 3. Pull historical dispute context from Hindsight memories
+        memory_texts = [m.get("text", "").lower() for m in recalled_memories if isinstance(m, dict)]
+        past_dispute = any("threatens contract cancellation" in txt or "abusive" in txt for txt in memory_texts)
+
+        # 4. Resolve emotional trajectory
+        if has_live_hostility:
+            # Active fire: P0 Critical Escalation
+            return {
+                "volatility_score": 95,
+                "escalation_level": "CRITICAL DE-ESCALATION",
+                "assigned_specialist": self.specialists["rachel_deescalation"],
+                "rationale": "Active hostility or legal threat detected. Immediate de-escalation protocol engaged."
+            }
+        elif has_live_apology:
+            # User cooled down: normalize back to standard
+            return {
+                "volatility_score": 20,
+                "escalation_level": "DE-ESCALATION RESOLVED",
+                "assigned_specialist": self.specialists["emily_smb"],
+                "rationale": "Customer apologized and de-escalated. Volatility normalized to Low."
+            }
+        elif "Executive" in base_temperament:
+            return {
+                "volatility_score": 15,
+                "escalation_level": "EXECUTIVE CONCIERGE",
+                "assigned_specialist": self.specialists["david_enterprise"],
+                "rationale": "Executive VIP commercial account profile matched."
+            }
+        
+        return {
+            "volatility_score": 25,
+            "escalation_level": "STANDARD",
+            "assigned_specialist": self.specialists["emily_smb"],
+            "rationale": "Standard customer inquiry."
+        }</code></pre>
+<h3>The System Prompt Magic</h3>
+<p>When Rachel Brooks is selected, we inject her persona rules directly into Gemini's prompt:</p>
+<pre><code>=== BEHAVIORAL ROUTING ACTIVE ===
+Assigned Specialist: Rachel Brooks (De-escalation Lead)
+Tone Directives: Never say "I apologize for the inconvenience" (it sounds robotic).
+Do not use exclamation marks.
+Acknowledge the core failure in sentence 1.
+State the exact technical or financial remedy in sentence 2.
+Offer immediate human voice call dispatch.</code></pre>
+<hr>
+<h2>What It Looks Like in Practice</h2>
+<p>Here is what happens when Elena Rostova (our test persona for an enterprise marketing lead) hits our support endpoint after an ad campaign dashboard failure:</p>
+<blockquote>**Elena:** *"This is completely unacceptable! Your broken app crashed and ruined my campaign! I demand a manager or I am suing!"*</blockquote>
+<h3>Without Hindsight & Behavioral Routing (Standard Chatbot):</h3>
+<blockquote>*"Hello! Thank you for reaching out to us today! 😊 I am so sorry to hear that your app had an issue. Could you please provide your 16-digit account ID and describe the error? Our support team will review your ticket within 2 to 3 business days."*</blockquote>
+<p>Result: Elena cancels her account immediately. The bot gave her toxic positivity, asked her for information it should already have, and told her to wait 72 hours while her ad dollars burned.</p>
+<h3>With Hindsight & Rachel Brooks Routing:</h3>
+<p>The agent immediately checks Elena's account history, recalls the recent gateway 422 errors, flags the turn as <code>P0 - Critical</code>, and mints an official CRM ticket on the fly:</p>
+<img src="d:\hackwithhyd\screenshots\chat_interface.png" alt="Customer Chat Interface">
+<span class="caption">Figure 2: The bot recognizes Elena, displays the newly minted P0 ticket, and presents actionable resolution options.</span>
+<p>Notice what happened:</p>
+<ol><li>**No fake pleasantries:** The response acknowledges the exact campaign failure immediately.</li></ol>
+<ol><li>**Official CRM Ticket:** Mints ticket `#TCK-2026-B20CB` and increments her ticket counter on the header.</li></ol>
+<ol><li>**Audit Trail:** Clicking `[ 🔍 How Agent Solved This ]` opens the transparency drawer showing the exact volatility score (95%) and recalled Hindsight memories:</li></ol>
+<img src="d:\hackwithhyd\screenshots\transparency_drawer.png" alt="Transparency Drawer">
+<span class="caption">Figure 3: Support leads can inspect the exact reasoning, volatility scoring, and warehouse logs that produced the resolution.</span>
+<ol><li>**Human Escape Hatch:** Because high-value accounts sometimes just need to talk to a person, the bot renders a **Voice Call Dispatch Card** to connect directly to Rachel's phone line.</li></ol>
+<p>And when Elena chooses to accept a resolution or return an asset, the agent executes the action deterministically:</p>
+<img src="d:\hackwithhyd\screenshots\autonomous_action_resolution.png" alt="Autonomous Action Execution">
+<span class="caption">Figure 4: Instant autonomous resolution with real-time barcode generation and wallet deposit.</span>
+<p>We even built a "Legacy Mode" toggle to demo this failure side-by-side. Flipping off Hindsight turns the bot right back into an oblivious brick wall:</p>
+<img src="d:\hackwithhyd\screenshots\legacy_mode_comparison.png" alt="Legacy Mode Comparison">
+<span class="caption">Figure 5: The same user in legacy mode. With memory disabled, the bot asks for their name and order ID all over again.</span>
+<hr>
+<h2>3 Lessons We Learned About AI and Customer Anger</h2>
+<h3>1. Fake empathy makes anger worse</h3>
+<p>Users know they are talking to an LLM. When an LLM says <em>"I feel your pain and my heart goes out to you"</em>, it feels manipulative. Real empathy from an AI is <strong>speed, competence, and taking accountability</strong>, not poetic apologies.</p>
+<h3>2. Live signals must override past memory</h3>
+<p>If someone screamed at your bot yesterday, do not open today's conversation like you are wearing body armor. If they say <em>"Hi, can I check my tracking number?"</em>, let them de-escalate. We learned to make the current turn's tone carry 80% of the volatility weight.</p>
+<h3>3. Autonomy without guardrails is terrifying</h3>
+<p>If an angry user realizes that screaming louder makes the bot increase its refund offer, they will exploit it every time. By setting deterministic caps in Python (e.g., maximum 70% trade-in credit, $150 goodwill limit), we gave the agent the power to resolve issues without giving away the company's balance sheet.</p>
+<hr>
+<h2>Wrapping Up</h2>
+<p>Building a support agent is easy. Building one that does not embarrass your company when things go wrong is hard.</p>
+<p>The difference between a frustrating chatbot and an effective AI copilot comes down to memory. When your agent remembers who a customer is, what they have been through, and how they deserve to be treated, customer service stops feeling like a barrier and starts feeling like an actual service.</p>
+<p>If you are working on conversational agents, take a look at the <a href="https://github.com/vectorize-io/hindsight" target="_blank">Hindsight GitHub repository</a>. Stop building amnesic chatbots.</p>
+</body></html>

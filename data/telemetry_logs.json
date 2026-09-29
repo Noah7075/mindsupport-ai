@@ -1,0 +1,28 @@
+{
+  "tony": {
+    "user_id": "tony",
+    "customer_name": "Tony",
+    "order_id": "ORD-77492",
+    "item": "Diamond Hoop Earrings 14k White Gold ($240.00)",
+    "return_tracking": "TRK-882190 (FedEx Return Express)",
+    "status": "REFUND_GATEWAY_BLOCKED",
+    "last_log_timestamp": "2026-09-29T12:30:15Z",
+    "logs": [
+      "[12:15:02] [WAREHOUSE-BAY-4] Inbound package scanned: Tracking #TRK-882190 (Sender: Tony). Weight: 0.35 lbs.",
+      "[12:15:30] [QA-INSPECTION] Item verified: Diamond Hoop Earrings 14k Gold. Condition: Pristine/Unworn. Barcode: SKU-EARR-9941.",
+      "[12:16:00] [INVENTORY-SERVICE] Item restocked to Austin Central Fulfillment Hub. Return marked 'APPROVED'.",
+      "[12:16:05] [REFUND-DISPATCHER] Initiating automated return refund of $240.00 to original payment method.",
+      "[12:16:08] [PAYMENT-GATEWAY-STRIPE] POST /v1/refunds (Order #ORD-77492, Target: Visa ending in 4102)",
+      "[12:16:10] [GATEWAY-RESPONSE] HTTP 422 Unprocessable Entity: 'Card token invalid - Original payment card (Visa *4102) expired on 08/26'.",
+      "[12:16:15] [RETRY-ENGINE] Automated refund webhook entered backoff retry queue (Attempt 4/10 stalled). Manual intervention/re-route required."
+    ],
+    "diagnostic": "Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.",
+    "executable_action": {
+      "action_name": "reroute_refund_to_active_card",
+      "display_name": "⚡ Auto-Reroute $240.00 Refund to Active Mastercard (*8891)",
+      "required_permission": "Gold Rewards Member",
+      "target_resource": "payment_gateway:refund:ORD-77492",
+      "execution_output": "Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240."
+    }
+  }
+}

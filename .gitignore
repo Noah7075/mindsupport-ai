@@ -1,23 +1,7 @@
-# Environment Variables & Secrets (NEVER COMMIT)
 .env
-.env.local
-*.env
-
-# Python bytecode & cache
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv/
-
-# Local data & logs
-hindsight_local_bank.json
-*.log
-.system_generated/
-
-# OS files
+*.pyc
+.pytest_cache/
+node_modules/
+dist/
 .DS_Store
-Thumbs.db

@@ -1,0 +1,287 @@
+[
+  {
+    "id": "tony",
+    "name": "Tony Stark",
+    "phone": "+1 (512) 555-0192",
+    "address": "10880 Malibu Point, Austin, TX 78701",
+    "role": "VIP Customer",
+    "plan": "Gold Rewards Member",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TonyStarkVIP",
+    "sentiment": "Calm",
+    "sentiment_score": 85,
+    "temperament": "Mature, Calm, Respectful",
+    "volatility_score": 15,
+    "recommended_specialist": "david_enterprise",
+    "orders": [
+      {
+        "id": "ORD-1092",
+        "item": "PlayStation 5 Bundle",
+        "price": "$499.00",
+        "date": "Jan 12, 2026"
+      },
+      {
+        "id": "ORD-3391",
+        "item": "Sony 65-inch 4K OLED TV",
+        "price": "$1,800.00",
+        "date": "Mar 24, 2026"
+      },
+      {
+        "id": "ORD-5820",
+        "item": "Bose QC Ultra Headphones",
+        "price": "$349.00",
+        "date": "Jun 10, 2026"
+      },
+      {
+        "id": "ORD-77492",
+        "item": "Diamond Hoop Earrings 14k White Gold",
+        "price": "$240.00",
+        "date": "Sep 15, 2026"
+      }
+    ],
+    "wallet_balance": 1260.0,
+    "total_tickets": 23,
+    "preloaded_memories": [
+      "Tony Stark is a Gold Rewards Member. Phone: +1 (512) 555-0192. Address: 10880 Malibu Point, Austin, TX 78701.",
+      "PAST TICKET #101 (Resolved): PS5 bundle missing controller resolved via expedited 24-hour replacement delivery.",
+      "PAST TICKET #102 (Resolved): Sony 65-inch 4K OLED TV freight delivery scheduled for Saturday morning.",
+      "PAST TICKET #103 (Resolved): Enrolled Bose QC Headphones in 2-Year Extended Accidental Damage Warranty.",
+      "PAST TICKET #104 (Resolved): Updated residential shipping address to Austin, TX.",
+      "PAST TICKET #105 (Resolved): Retroactively applied 15% Holiday Price-Match Coupon to order #ORD-1092."
+    ]
+  },
+  {
+    "id": "sarah",
+    "name": "Sarah Miller",
+    "phone": "+1 (312) 555-0841",
+    "address": "742 Evergreen Terrace, Chicago, IL 60614",
+    "role": "Small Business Owner",
+    "plan": "Starter Business Tier",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SarahBakery",
+    "sentiment": "Anxious",
+    "sentiment_score": 45,
+    "temperament": "Anxious, Non-Technical, Gentle",
+    "volatility_score": 30,
+    "recommended_specialist": "emily_smb",
+    "orders": [
+      {
+        "id": "ORD-2011",
+        "item": "KitchenAid Commercial Stand Mixer",
+        "price": "$420.00",
+        "date": "Apr 10, 2026"
+      },
+      {
+        "id": "ORD-4190",
+        "item": "Artisan Sourdough Proofing Baskets (6-pack)",
+        "price": "$85.00",
+        "date": "Jun 02, 2026"
+      },
+      {
+        "id": "ORD-6812",
+        "item": "Stripe POS Countertop Terminal",
+        "price": "$299.00",
+        "date": "Aug 14, 2026"
+      }
+    ],
+    "wallet_balance": 0.0,
+    "total_tickets": 11,
+    "preloaded_memories": [
+      "Sarah Miller owns Sweet Bakes Bakery. Phone: +1 (312) 555-0841. Address: 742 Evergreen Terrace, Chicago, IL.",
+      "BEHAVIOR RECORD: Sarah is non-technical and experiences anxiety when facing tech errors; benefits from step-by-step visual guidance.",
+      "PAST TICKET #201 (Resolved): Replaced missing dough hook attachment on KitchenAid mixer in 48 hours.",
+      "PAST TICKET #202 (Resolved): Guided step-by-step Wi-Fi pairing on Stripe POS terminal.",
+      "PAST TICKET #203 (Resolved): Added bakery delivery gate access instructions to courier notes.",
+      "PAST TICKET #204 (Resolved): Updated invoice tax ID certificate for tax exemption.",
+      "PAST TICKET #205 (Resolved): Enrolled bakery in Small Business Merchant Loyalty Discount."
+    ]
+  },
+  {
+    "id": "alex",
+    "name": "Alex Vance",
+    "phone": "+1 (415) 555-9310",
+    "address": "450 Mission St, Suite 1200, San Francisco, CA 94105",
+    "role": "Lead Systems Architect",
+    "plan": "Enterprise Platinum SLA",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AlexVancePlatinum",
+    "sentiment": "Frustrated",
+    "sentiment_score": 25,
+    "temperament": "Hostile, Aggressive, Demanding, High Churn Risk",
+    "volatility_score": 88,
+    "recommended_specialist": "rachel_deescalation",
+    "orders": [
+      {
+        "id": "ORD-1180",
+        "item": "Apple MacBook Pro 16-inch M3 Max",
+        "price": "$3,499.00",
+        "date": "Feb 20, 2026"
+      },
+      {
+        "id": "ORD-3940",
+        "item": "Apple Studio Display 5K Retina",
+        "price": "$1,599.00",
+        "date": "May 05, 2026"
+      },
+      {
+        "id": "ORD-7201",
+        "item": "CalDigit TS4 Thunderbolt 4 Station",
+        "price": "$399.00",
+        "date": "Sep 01, 2026"
+      }
+    ],
+    "total_tickets": 10,
+    "preloaded_memories": [
+      "Alex Vance is Lead Systems Architect at Apex Dynamics. Phone: +1 (415) 555-9310. Address: 450 Mission St, San Francisco, CA.",
+      "BEHAVIOR RECORD: Customer is highly aggressive under pressure, threatens contract cancellation; reacts negatively to generic apologies. Divert to Rachel Brooks.",
+      "PAST TICKET #301 (Resolved): Resolved TS4 Thunderbolt dock sleep-wake kernel panic via firmware v39 update.",
+      "PAST TICKET #302 (Resolved): Calibrated DCI-P3 color profile for Studio Display.",
+      "PAST TICKET #303 (Resolved): Overnight courier replacement for defective Thunderbolt cable.",
+      "PAST TICKET #304 (Resolved): Generated consolidated enterprise VAT tax invoice.",
+      "PAST TICKET #305 (Resolved): Enrolled account in 15-minute response Platinum SLA guarantee."
+    ],
+    "wallet_balance": 2449.3
+  },
+  {
+    "id": "marcus",
+    "name": "Marcus Chen",
+    "phone": "+1 (206) 555-4829",
+    "address": "1201 3rd Ave, Seattle, WA 98101",
+    "role": "Principal DevOps Lead",
+    "plan": "Pro Infrastructure Tier",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MarcusDevOps",
+    "sentiment": "Urgent",
+    "sentiment_score": 40,
+    "temperament": "Deep Technical, Direct, Impatient",
+    "volatility_score": 60,
+    "recommended_specialist": "carlos_sre",
+    "orders": [
+      {
+        "id": "ORD-1802",
+        "item": "Dell PowerEdge R750 2U Rack Server",
+        "price": "$4,200.00",
+        "date": "Mar 03, 2026"
+      },
+      {
+        "id": "ORD-4100",
+        "item": "UniFi Dream Machine Pro Router",
+        "price": "$379.00",
+        "date": "May 18, 2026"
+      },
+      {
+        "id": "ORD-6210",
+        "item": "Synology DiskStation 8-Bay NAS",
+        "price": "$1,100.00",
+        "date": "Jul 22, 2026"
+      }
+    ],
+    "wallet_balance": 0.0,
+    "total_tickets": 7,
+    "preloaded_memories": [
+      "Marcus Chen is Principal DevOps Lead at CloudScale. Phone: +1 (206) 555-4829. Address: 1201 3rd Ave, Seattle, WA.",
+      "BEHAVIOR RECORD: Speaks in CLI commands, status codes, and kernel logs; values rapid root-cause over conversational pleasantries. Divert to Carlos Mendez.",
+      "PAST TICKET #401 (Resolved): Unlocked Synology RAID 6 parity array rebuild timeout.",
+      "PAST TICKET #402 (Resolved): Replaced incompatible SFP+ 10GbE optical transceiver module.",
+      "PAST TICKET #403 (Resolved): Reset SSH public key authorization lockout on remote gateway.",
+      "PAST TICKET #404 (Resolved): Provided clean curl rollback script for UniFi firmware 4.2.1.",
+      "PAST TICKET #405 (Resolved): Increased API rate limit quota from 1000 to 3000 req/min for staging CI runner."
+    ]
+  },
+  {
+    "id": "elena",
+    "name": "Elena Rostova",
+    "phone": "+1 (212) 555-7734",
+    "address": "350 Park Avenue, 18th Floor, New York, NY 10022",
+    "role": "Chief Financial Officer",
+    "plan": "Enterprise Custom Contract",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ElenaCFO",
+    "sentiment": "Calm",
+    "sentiment_score": 85,
+    "temperament": "Executive, Formal, Policy-Focused",
+    "volatility_score": 15,
+    "recommended_specialist": "david_enterprise",
+    "orders": [
+      {
+        "id": "ORD-0920",
+        "item": "Enterprise Cloud Compliance & Audit Suite",
+        "price": "$24,000.00",
+        "date": "Jan 01, 2026"
+      },
+      {
+        "id": "ORD-4412",
+        "item": "Dell UltraSharp 32-inch 4K USB-C Hub Monitor",
+        "price": "$1,150.00",
+        "date": "Mar 05, 2026"
+      },
+      {
+        "id": "ORD-5192",
+        "item": "Ledger Nano X Enterprise 10-Pack",
+        "price": "$590.00",
+        "date": "Jun 30, 2026"
+      }
+    ],
+    "wallet_balance": 805.0,
+    "total_tickets": 7,
+    "preloaded_memories": [
+      "Elena Rostova is CFO at Vertex Fintech Labs. Phone: +1 (212) 555-7734. Address: 350 Park Avenue, New York, NY.",
+      "BEHAVIOR RECORD: Executive decision-maker; values professional etiquette, formal compliance packets, and commercial contract precision.",
+      "Elena Rostova purchased a Dell UltraSharp 32-inch 4K USB-C Hub Monitor (#ORD-4412, $1,150.00) on March 05, 2026 for executive boardroom setup.",
+      "PAST TICKET #501 (Resolved): Dispatched 2026 SOC2 Type II audit certificate packet for vendor security review.",
+      "PAST TICKET #502 (Resolved): Structured 2-year prepaid renewal with 15% volume discount.",
+      "PAST TICKET #503 (Resolved): Consolidated multi-entity billing into a single quarterly statement.",
+      "PAST TICKET #504 (Resolved): Matched international wire transfer remittance code with invoice balance.",
+      "PAST TICKET #505 (Resolved): Executed mutual corporate NDA security agreement."
+    ]
+  },
+  {
+    "id": "thanuj_kumar",
+    "name": "Thanuj Kumar",
+    "phone": "+1 (415) 888-1234",
+    "address": "123 Innovation Way, Tech Hub, CA",
+    "role": "New Customer",
+    "plan": "Standard Customer Account",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=thanuj_kumar",
+    "sentiment": "Neutral",
+    "temperament": "Curious, Open",
+    "volatility_score": 25,
+    "recommended_specialist": "emily_smb",
+    "orders": [],
+    "total_tickets": 0,
+    "preloaded_memories": [
+      "New customer registered: Thanuj Kumar. Phone: +1 (415) 888-1234."
+    ]
+  },
+  {
+    "id": "shyam",
+    "name": "Shyam",
+    "phone": "+1 (415) 888-1234",
+    "address": "24 street avenue old city brooklyn",
+    "role": "New Customer",
+    "plan": "Standard Customer Account",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=shyam",
+    "sentiment": "Neutral",
+    "temperament": "Curious, Open",
+    "volatility_score": 25,
+    "recommended_specialist": "emily_smb",
+    "orders": [],
+    "total_tickets": 0,
+    "preloaded_memories": [
+      "New customer registered: shyam. Phone: +1 (415) 888-1234."
+    ]
+  },
+  {
+    "id": "nani",
+    "name": "nani",
+    "phone": "+1 (415) 888-1289",
+    "address": "Not provided yet",
+    "role": "New Customer",
+    "plan": "Standard Customer Account",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=nani",
+    "sentiment": "Neutral",
+    "temperament": "Curious, Open",
+    "volatility_score": 25,
+    "recommended_specialist": "emily_smb",
+    "orders": [],
+    "total_tickets": 1,
+    "preloaded_memories": [
+      "New customer registered: nani. Phone: +1 (415) 888-1289."
+    ]
+  }
+]

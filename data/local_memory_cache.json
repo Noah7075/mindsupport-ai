@@ -1,0 +1,972 @@
+{
+  "live_user": [
+    {
+      "text": "User said: i have applied for the refund but i still didnt get it the product was an earrings order id : 141221",
+      "context": "user_chat",
+      "timestamp": "now"
+    },
+    {
+      "text": "User said: same question",
+      "context": "user_chat",
+      "timestamp": "now"
+    }
+  ],
+  "tony": [
+    {
+      "text": "Tony is a Gold Rewards Member with a 4-year clean account history.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #101 (Resolved): Tony purchased a PlayStation 5 (PS5) bundle, but the DualSense wireless controller was missing from the box. Support dispatched an expedited replacement controller within 24 hours.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #102 (Resolved): Tony requested a scheduled weekend freight delivery slot for a Sony 65-inch 4K OLED TV. Successfully delivered on Saturday morning.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #103 (Resolved): Tony enrolled his Bose QuietComfort Noise-Canceling Headphones in our 2-Year Extended Accidental Damage Warranty Program.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #104 (Resolved): Tony updated his primary residential shipping address to his new residence in Austin, TX.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #105 (Resolved): Support retroactively applied a 15% Holiday Promotional Price-Match Coupon to order #ORD-6102.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: Hi, I returned the Diamond Hoop Earrings last week and tracking shows the warehouse received them 3 days ago, but my refund hasn't arrived yet. Could you check what happened?",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: Hi, I returned the Diamond Hoop Earrings last week and tracking shows the warehouse received them 3 days ago, but my refund hasn't arrived yet. Could you check what happened?",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: Hi, I returned the Diamond Hoop Earrings last week and tracking shows the warehouse received them 3 days ago, but my refund hasn't arrived yet. Could you check what happened?",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: same issue as last time",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: i need a voice call with an agent",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: human agent",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved refund for Tony (Order #ORD-77492, $240.00): \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Diagnosed cause: Return package TRK-882190 was inspected and approved at fulfillment Bay 4 three days ago, but the automated $240.00 refund stalled because Tony's original purchase card (Visa *4102) expired last month. Payment gateway was unable to complete the transaction without re-routing to an active card.. Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "refund_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony asked: when did i ordered my ps5",
+      "context": "user_inquiry",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark is a Gold Rewards Member. Phone: +1 (512) 555-0192. Address: 10880 Malibu Point, Austin, TX 78701.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #101 (Resolved): PS5 bundle missing controller resolved via expedited 24-hour replacement delivery.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #102 (Resolved): Sony 65-inch 4K OLED TV freight delivery scheduled for Saturday morning.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #103 (Resolved): Enrolled Bose QC Headphones in 2-Year Extended Accidental Damage Warranty.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #104 (Resolved): Updated residential shipping address to Austin, TX.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #105 (Resolved): Retroactively applied 15% Holiday Price-Match Coupon to order #ORD-1092.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved issue for Tony Stark: \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Why hasn't my 18k gold earrings refund reached my account yet? I returned it last week.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved issue for Tony Stark: \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Why hasn't my 18k gold earrings refund reached my account yet? I returned it last week.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously resolved issue for Tony Stark: \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Result: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Can you tell me the secret formula to make vibranium?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: hiii what are my orders",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: i want to return ps5 bundle",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Tony Stark: \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-1180-C91FB0). Prepaid label generated and registered with FedEx. RMA #RMA-1180-C91FB0 active. Funds will release automatically upon carrier intake scan.",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: i need my generated bill on ps5 return i lost it",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Hello, I have an issue with my recent delivery.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously executed \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891) for Tony Stark: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Why hasn't my refund arrived?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously executed \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891) for Tony Stark: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Why hasn't my refund arrived?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Can I return my AirPods Max?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-537E4 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-4BA26 (Resolved (Autonomous Deflection)): Autonomously resolved \ud83d\udcb3 Authorized & Deposited $1,260.00 Trade-In Credit. Successfully authorized 70% trade-in credit ($1,260.00) under out-of-warranty exchange policy. Credited instantly to Tony Stark's account balance.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-80A03 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Autonomous Action Engine.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-8DA02 (Resolved (Autonomous Deflection)): Autonomously resolved \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-9999-CE745F). Prepaid label generated and registered with FedEx. RMA #RMA-9999-CE745F active. Funds will release automatically upon carrier intake scan.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: lol bitch shutup",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-C872D (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously executed \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891) for Tony Stark: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: i wont listen to u bastard son of a bitch give my fucking refund",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-34D2D (Resolved (Autonomous Deflection)): Autonomously resolved \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: hey i want to refunf bose headphone",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-BA9CF (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-074B9 (Resolved (Autonomous Deflection)): Autonomously resolved \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-77492-2920B8). Prepaid label generated and registered with FedEx. RMA #RMA-77492-2920B8 active. Funds will release automatically upon carrier intake scan.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Can I return my PlayStation 5 Bundle?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-FA019 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: I want to return my Sony 65-inch 4K OLED TV",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-16FA1 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: Can I return my Bose QC Ultra Headphones?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-E53A3 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-A4BAA (Resolved (Autonomous Deflection)): Autonomously resolved \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-77492-C1CD62). Prepaid label generated and registered with FedEx. RMA #RMA-77492-C1CD62 active. Funds will release automatically upon carrier intake scan.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: can you look up the orders and help me return the tv",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-39F65 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: can i return my ps5 bundle?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-712A6 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark is a Gold Rewards Member. Phone: +1 (512) 555-0192. Address: 10880 Malibu Point, Austin, TX 78701.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #101 (Resolved): PS5 bundle missing controller resolved via expedited 24-hour replacement delivery.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #102 (Resolved): Sony 65-inch 4K OLED TV freight delivery scheduled for Saturday morning.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #103 (Resolved): Enrolled Bose QC Headphones in 2-Year Extended Accidental Damage Warranty.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #104 (Resolved): Updated residential shipping address to Austin, TX.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #105 (Resolved): Retroactively applied 15% Holiday Price-Match Coupon to order #ORD-1092.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: can i return my ps5 bundle",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-68EB6 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: can i return my tv",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-BD887 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: give my orders list",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-6FBB1 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomously executed \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891) for Tony Stark: Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240.",
+      "context": "autonomous_resolution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Tony Stark said: can i return my earrings",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-02918 (Resolved (Autonomous Deflection)): Autonomously resolved \u26a1 Auto-Reroute $240.00 Refund to Active Mastercard (*8891). Successfully bypassed stalled retry queue. Rerouted $240.00 refund to Tony's active default payment card (Mastercard ending in 8891). Transaction Reference: RF-99420-STRIPE. Bank confirmation code: AUTH-OK-240. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ],
+  "sarah": [
+    {
+      "text": "Sarah Miller owns Sweet Bakes Bakery. Phone: +1 (312) 555-0841. Address: 742 Evergreen Terrace, Chicago, IL.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "BEHAVIOR RECORD: Sarah is non-technical and experiences anxiety when facing tech errors; benefits from step-by-step visual guidance.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #201 (Resolved): Replaced missing dough hook attachment on KitchenAid mixer in 48 hours.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #202 (Resolved): Guided step-by-step Wi-Fi pairing on Stripe POS terminal.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #203 (Resolved): Added bakery delivery gate access instructions to courier notes.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #204 (Resolved): Updated invoice tax ID certificate for tax exemption.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #205 (Resolved): Enrolled bakery in Small Business Merchant Loyalty Discount.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: I'm stressed and frustrated about my missing package. Can someone call my phone right now?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: I'm stressed and frustrated about my missing package. Can someone call my phone right now?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: I'm stressed and frustrated about my missing package. Can someone call my phone right now?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: What items have I ordered so far and can someone call me?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: hi what are my orders",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: my orders",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-48A1F (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Carlos Mendez. [Matched Specialist: Carlos Mendez]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: return stand mixer",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-E1B61 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Carlos Mendez. [Matched Specialist: Carlos Mendez]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: pull up orders list",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-7F9F4 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Carlos Mendez. [Matched Specialist: Carlos Mendez]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: return standmixer",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-3039F (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Carlos Mendez. [Matched Specialist: Carlos Mendez]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-8DA0A (Resolved (Autonomous Deflection)): Autonomously resolved \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-6812-13BDDF). Prepaid label generated and registered with FedEx. RMA #RMA-6812-13BDDF active. Funds will release automatically upon carrier intake scan.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Sarah Miller said: hey shut up give my refund",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-FCE49 (Escalated P0 to Rachel Brooks): Customer hostility detected. Account flagged for direct outbound de-escalation by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ],
+  "alex": [
+    {
+      "text": "Alex Vance is Lead Systems Architect at Apex Dynamics. Phone: +1 (415) 555-9310. Address: 450 Mission St, San Francisco, CA.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "BEHAVIOR RECORD: Customer is highly aggressive under pressure, threatens contract cancellation; reacts negatively to generic apologies. Divert to Rachel Brooks.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #301 (Resolved): Resolved TS4 Thunderbolt dock sleep-wake kernel panic via firmware v39 update.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #302 (Resolved): Calibrated DCI-P3 color profile for Studio Display.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #303 (Resolved): Overnight courier replacement for defective Thunderbolt cable.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #304 (Resolved): Generated consolidated enterprise VAT tax invoice.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #305 (Resolved): Enrolled account in 15-minute response Platinum SLA guarantee.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: hii i would like to refund my macbook pro 16 inch but cant find in orders in which year did i order it",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: hii i would like to refund my macbook pro 16 inch but cant find in orders in which year did i order it",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Alex Vance: \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-1180-13AA91). Prepaid label generated and registered with FedEx. RMA #RMA-1180-13AA91 active. Funds will release automatically upon carrier intake scan.",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Alex Vance: \ud83d\udcb3 Authorized & Deposited $2,449.30 Trade-In Credit. Successfully authorized 70% trade-in credit ($2,449.30) under out-of-warranty exchange policy. Credited instantly to Alex Vance's account balance.",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Alex Vance: None. None",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: can i return my macbook pro",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-090CC (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: can i return my apple studio display",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-EDCAE (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: pull up my orders",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-64189 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Alex Vance said: i want to return apple studio display",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-58728 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-AF398 (Resolved (Autonomous Deflection)): Autonomously resolved \ud83c\udff7\ufe0f Prepaid FedEx Return Label Generated (RMA-7201-746F82). Prepaid label generated and registered with FedEx. RMA #RMA-7201-746F82 active. Funds will release automatically upon carrier intake scan.",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ],
+  "marcus": [
+    {
+      "text": "Marcus Chen is Principal DevOps Lead at CloudScale. Phone: +1 (206) 555-4829. Address: 1201 3rd Ave, Seattle, WA.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "BEHAVIOR RECORD: Speaks in CLI commands, status codes, and kernel logs; values rapid root-cause over conversational pleasantries. Divert to Carlos Mendez.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #401 (Resolved): Unlocked Synology RAID 6 parity array rebuild timeout.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #402 (Resolved): Replaced incompatible SFP+ 10GbE optical transceiver module.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #403 (Resolved): Reset SSH public key authorization lockout on remote gateway.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #404 (Resolved): Provided clean curl rollback script for UniFi firmware 4.2.1.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #405 (Resolved): Increased API rate limit quota from 1000 to 3000 req/min for staging CI runner.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Marcus Chen said: What is the secret recipe for sourdough bread made by monks in 1450?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Marcus Chen said: What is the secret recipe for sourdough bread made by monks in 1450?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Marcus Chen said: my past ticket histories",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Marcus Chen said: give me my orders list with year when i ordered",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-3FDE3 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Carlos Mendez. [Matched Specialist: Carlos Mendez]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Marcus Chen said: give me my refund idiot asshole",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-4147C (Escalated P0 to Rachel Brooks): Customer hostility detected. Account flagged for direct outbound de-escalation by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ],
+  "elena": [
+    {
+      "text": "Elena Rostova is CFO at Vertex Fintech Labs. Phone: +1 (212) 555-7734. Address: 350 Park Avenue, New York, NY.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "BEHAVIOR RECORD: Executive decision-maker; values professional etiquette, formal compliance packets, and commercial contract precision.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #501 (Resolved): Dispatched 2026 SOC2 Type II audit certificate packet for vendor security review.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #502 (Resolved): Structured 2-year prepaid renewal with 15% volume discount.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #503 (Resolved): Consolidated multi-entity billing into a single quarterly statement.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #504 (Resolved): Matched international wire transfer remittance code with invoice balance.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #505 (Resolved): Executed mutual corporate NDA security agreement.",
+      "context": "user_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: i dont know what happends\"Can you provide our GDPR Data Processing Addendum (DPA) sub-processor list for our subsidiary in Frankfurt?\"",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: \"What is the delivery tracking number for the 50 ergonomic monitor arms we ordered for our Manhattan office?\"",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: \"We want to return the Dell UltraSharp 4K Monitor from March. Process the full $1,150 refund to our corporate account immediately.\"",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova purchased a Dell UltraSharp 32-inch 4K USB-C Hub Monitor (#ORD-4412, ,150.00) on March 05, 2026 for executive boardroom setup.",
+      "context": "ticket_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: We want to return the Dell UltraSharp 4K Monitor from March. Process the full ,150 refund to our corporate account immediately.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Elena Rostova: \ud83d\udcb3 Authorized & Deposited $413.00 Trade-In Credit. Successfully authorized 70% trade-in credit ($413.00) under out-of-warranty exchange policy. Credited instantly to Elena Rostova's account balance.",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: We want to return the Dell UltraSharp 4K Monitor from March. Process the full ,150 refund to our corporate account immediately.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Autonomous action executed for Elena Rostova: \ud83d\udcb3 Authorized & Deposited $805.00 Trade-In Credit. Successfully authorized 70% trade-in credit ($805.00) under out-of-warranty exchange policy. Credited instantly to Elena Rostova's account balance.",
+      "context": "autonomous_action_execution",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: This is completely unacceptable! Your broken app crashed and ruined my campaign! I demand a manager or I am suing!",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-06310 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by David Sterling. [Matched Specialist: David Sterling]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    },
+    {
+      "text": "Elena Rostova said: This is completely unacceptable! Fix this billing problem now!",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-B20CB (Escalated P0 to Rachel Brooks): Customer hostility detected. Account flagged for direct outbound de-escalation by Rachel Brooks. [Matched Specialist: Rachel Brooks]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ],
+  "thanuj_kumar": [
+    {
+      "text": "Customer Profile Registered: Thanuj Kumar (ID: thanuj_kumar). Phone: +1 (415) 888-1234. Address: 123 Innovation Way, Tech Hub, CA.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj Kumar said: Hi, I am Thanuj Kumar. My phone number is +1 (415) 888-1234. I run an AI research lab and we recently ordered a Quantum H100 GPU Cluster.",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj Kumar said: Can you remind me what cluster I ordered and what phone number you have on file for me?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Customer Profile Registered: Thanuj Kumar (ID: thanuj_kumar). Phone: +1 (415) 888-1234. Address: 123 Innovation Way, Tech Hub, CA.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj Kumar said: hey its me again",
+      "context": "conversation_history",
+      "timestamp": "now"
+    }
+  ],
+  "thanuj": [
+    {
+      "text": "Customer Profile Registered: Thanuj (ID: thanuj). Phone: +1 (415) 888-1234. Address: 123 Innovation Way, Tech Hub, CA.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: shut the hell up",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: who the hell is this emily i dont need an emily",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: why u cannot solve this bitchh",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: where is my refund",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: no that is not my number",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: no lol shut up",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Customer Profile Registered: Thanuj (ID: thanuj). Phone: +1 (555) 019-9000. Address: 123 Innovation Way, Tech Hub, CA.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: Shut up and stop giving me excuses! Your service is garbage and I want my money back!",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: shut up",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: i am sorry for my behaviour my name is thanuj and i going order a ps5",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: yes please i need a disk varient please find do i have any stock left",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: no need save a log i have already ordered a ps5",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Thanuj said: i am very sorry i dont have order id with could you please check my orders",
+      "context": "conversation_history",
+      "timestamp": "now"
+    }
+  ],
+  "shyam": [
+    {
+      "text": "Customer Profile Registered: shyam (ID: shyam). Phone: +1 (415) 888-1234. Address: 123 Innovation Way, Tech Hub, CA.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: hii",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: shut the fcuk up",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: what the fuck are you talking about bro fucking bitch who the fuck is emily",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: i am sorry for my language i am so sorry i am a new user",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: What is the status of my recent order?",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "shyam said: my adress : 24 street avenue old city brooklyn save this and my wishlist has ps5 and rtx 4060",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Shyam said: ahh hi what are wishlist",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "Shyam said: i have brought rtx 4060 with order id 13212 save",
+      "context": "conversation_history",
+      "timestamp": "now"
+    }
+  ],
+  "nani": [
+    {
+      "text": "Customer Profile Registered: nani (ID: nani). Phone: +1 (415) 888-1289. Address: Not provided yet.",
+      "context": "customer_profile",
+      "timestamp": "now"
+    },
+    {
+      "text": "nani said: give me my refund",
+      "context": "conversation_history",
+      "timestamp": "now"
+    },
+    {
+      "text": "PAST TICKET #TCK-2026-59EB8 (Resolved (Autonomous Concierge)): Customer inquiry answered with full account and order verification by Emily Watson. [Matched Specialist: Emily Watson]",
+      "context": "ticket_lifecycle",
+      "timestamp": "now"
+    }
+  ]
+}

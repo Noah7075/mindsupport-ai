@@ -1,0 +1,46 @@
+[
+  {
+    "id": "rachel_deescalation",
+    "name": "Rachel Brooks",
+    "role": "Senior De-Escalation & VIP Relations Lead",
+    "phone": "+1 (800) 555-0901",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=RachelBrooks",
+    "superpower": "High EQ, Crisis Resolution & Hostile Customer Pacification",
+    "best_matched_for": ["Aggressive", "Hostile", "High Churn Risk", "Demanding"],
+    "goodwill_authority": "$250 Goodwill Credit / Priority SLA Escalation",
+    "handling_playbook": "Acknowledge frustration immediately, skip apologies/pleasantries, take direct ownership, and provide immediate timeline."
+  },
+  {
+    "id": "carlos_sre",
+    "name": "Carlos Mendez",
+    "role": "Principal SRE & Infrastructure Lead",
+    "phone": "+1 (800) 555-0902",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=CarlosMendez",
+    "superpower": "Deep Technical Precision & Zero-Fluff Engineering Diagnostics",
+    "best_matched_for": ["Technical", "DevOps", "Architect", "Blunt"],
+    "goodwill_authority": "Direct Kernel / Cluster Live Debug Access",
+    "handling_playbook": "Communicate strictly in terminal logs, RFC standards, and commit SHAs. Provide root-cause analysis within 2 sentences."
+  },
+  {
+    "id": "emily_smb",
+    "name": "Emily Watson",
+    "role": "SMB Customer Success & Onboarding Lead",
+    "phone": "+1 (800) 555-0903",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EmilyWatson",
+    "superpower": "High Warmth, Visual Guides & Patient Non-Technical Support",
+    "best_matched_for": ["Anxious", "Non-Technical", "Confused", "Gentle"],
+    "goodwill_authority": "Complimentary 1-on-1 Screen Share Onboarding",
+    "handling_playbook": "Use reassuring, encouraging tone. Avoid jargon, provide numbered visual steps, and confirm understanding after each step."
+  },
+  {
+    "id": "david_enterprise",
+    "name": "David Sterling",
+    "role": "Enterprise Accounts & Compliance Director",
+    "phone": "+1 (800) 555-0904",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DavidSterling",
+    "superpower": "Executive Negotiation, Contract Consolidation & Audit Assurance",
+    "best_matched_for": ["Executive", "CFO", "Procurement", "Formal"],
+    "goodwill_authority": "Custom Multi-Year SLA & Discount Structuring",
+    "handling_playbook": "Deliver concise executive summaries, formal compliance documentation, and clear commercial ROI figures."
+  }
+]

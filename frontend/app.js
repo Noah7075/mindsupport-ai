@@ -1,737 +1,839 @@
-/**
- * Aegis Guardian - Frontend Controller
- * Features slide-out Hindsight Memory Bank drawer,
- * category filtering, custom category input, simulation modal, and chat clearing.
- */
+// MindSupport AI - Autonomous Support Copilot with Hindsight Persistent Memory, Behavioral Routing & Voice Call Dispatch
 
-// State
-let chatHistory = [];
-let voiceEnabled = false;
-let synth = window.speechSynthesis;
-let allCategorizedMemories = [];
-let currentCategoryFilter = "all";
-
-// DOM Elements - Chat & Controls
-const chatFeed = document.getElementById("chatFeed");
-const chatForm = document.getElementById("chatForm");
-const chatInput = document.getElementById("chatInput");
-const clearChatBtn = document.getElementById("clearChatBtn");
-const hintChips = document.querySelectorAll(".hint-chip");
-
-// Incident Lab & Real Outage Testing Elements
-const openSimModalBtn = document.getElementById("openSimModalBtn");
-const simModal = document.getElementById("simModal");
-const closeSimModalBtn = document.getElementById("closeSimModalBtn");
-const tabPresetLogs = document.getElementById("tabPresetLogs");
-const tabCustomLogs = document.getElementById("tabCustomLogs");
-const panelPresetLogs = document.getElementById("panelPresetLogs");
-const panelCustomLogs = document.getElementById("panelCustomLogs");
-const btnAnalyzeCustomLog = document.getElementById("btnAnalyzeCustomLog");
-const customLogService = document.getElementById("customLogService");
-const customLogText = document.getElementById("customLogText");
-
-// Real Outage Stack Trace Presets
-const PRESET_LOGS = {
-  redis_oom: {
-    service: "checkout-api",
-    scenario_name: "Redis OOM: maxmemory Exceeded by Unbounded Cache",
-    log_content: `[2026-09-29 03:14:22] redis-server[2819]: OOM command not allowed when used memory > 'maxmemory' (2097152000 bytes)
-[2026-09-29 03:14:22] celery.worker.consumer[102]: celery.exceptions.OperationalError: Error 500: OOM command not allowed
-Traceback (most recent call last):
-  File "/app/services/checkout.py", line 88, in reserve_stock
-    redis_client.setex(f"stock_lock:{sku}", 300, order_id)
-redis.exceptions.ResponseError: OOM command not allowed when used memory > 'maxmemory'.`
-  },
-  postgres_disk: {
-    service: "db-primary",
-    scenario_name: "PostgreSQL Disk Volume Full: WAL Archiving Panic",
-    log_content: `[2026-09-29 04:02:11] postgres[18221]: [3-1] PANIC: could not write to file "pg_wal/xlogtemp.18221": No space left on device
-[2026-09-29 04:02:12] postgres[18221]: [3-2] HINT: Check free disk space on data partition (/var/lib/postgresql/data).
-[2026-09-29 04:02:15] app.db.pool[901]: asyncpg.exceptions.DiskFullError: disk full: 99.8% volume capacity reached`
-  },
-  checkout_pool: {
-    service: "checkout-api-gateway",
-    scenario_name: "Checkout Connection Pool Exhaustion (504 Timeout)",
-    log_content: `HTTP 504: Upstream DB connection pool exhausted. Active: 150/150, Waiting threads: 842.
-Traceback (most recent call last):
-  File "/app/routes/checkout.py", line 142, in process_payment
-    async with db.pool.acquire(timeout=15.0) as conn:
-asyncpg.exceptions.PoolTimeoutError: connection acquisition timeout: pool exhausted`
-  }
+let currentUserId = "tony";
+let isHindsightMode = true;
+let usersData = {};
+const userChatHistories = {
+  tony: [],
+  sarah: [],
+  alex: [],
+  marcus: [],
+  elena: []
 };
 
-// Drawer Elements
-const memoryDrawerBtn = document.getElementById("memoryDrawerBtn");
-const memoryDrawer = document.getElementById("memoryDrawer");
-const drawerBackdrop = document.getElementById("drawerBackdrop");
-const closeDrawerBtn = document.getElementById("closeDrawerBtn");
-const drawerMemoryList = document.getElementById("drawerMemoryList");
-const drawerSearchInput = document.getElementById("drawerSearchInput");
-const catTabs = document.querySelectorAll(".cat-tab");
-const memoryBadgeCount = document.getElementById("memoryBadgeCount");
+const userSuggestedPrompts = {
+  tony: [
+    "Why hasn't my 18k gold earrings refund reached my account?",
+    "I'd like to speak with a human agent on the phone.",
+    "What is the warranty policy on quantum processors?"
+  ],
+  sarah: [
+    "Where is my Silk Slip Dress? It says delivered but nothing arrived!",
+    "Can I talk with a live specialist on a voice call right now?",
+    "Do you sell international airline tickets?"
+  ],
+  alex: [
+    "Kafka consumer offset mismatch is causing payment webhooks to loop 500s.",
+    "Connect me to an engineer on a voice call immediately.",
+    "How do I bake sourdough bread from scratch?"
+  ],
+  marcus: [
+    "I need an update on my Enterprise 42U Server Rack delivery.",
+    "Can I get a phone call from my enterprise account lead?",
+    "What is the population of Mars?"
+  ],
+  elena: [
+    "We want to return our Dell UltraSharp 4K Monitor from March. Process the refund to our corporate account.",
+    "I need an immediate tax invoice for my Dell UltraSharp 4K Monitor.",
+    "Can someone call my phone to verify our enterprise contract details?"
+  ]
+};
 
-// Counter Spans
-const catCountAll = document.getElementById("catCountAll");
-const catCountPlaybooks = document.getElementById("catCountPlaybooks");
-const catCountMistakes = document.getElementById("catCountMistakes");
-const catCountPolicies = document.getElementById("catCountPolicies");
-
-// Teach Rule Modal Elements
-const openTeachModalBtn = document.getElementById("openTeachModalBtn");
-const teachModal = document.getElementById("teachModal");
-const closeTeachModalBtn = document.getElementById("closeTeachModalBtn");
-const saveRuleBtn = document.getElementById("saveRuleBtn");
-const ruleCategory = document.getElementById("ruleCategory");
-const customCategoryGroup = document.getElementById("customCategoryGroup");
-const customCategoryInput = document.getElementById("customCategoryInput");
-const ruleText = document.getElementById("ruleText");
-
-const voiceToggleBtn = document.getElementById("voiceToggleBtn");
-
-
-// Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  setupEventListeners();
-  loadMemories();
+  initApp();
 });
 
+async function initApp() {
+  setupEventListeners();
+  await loadUsers();
+  switchUser("tony");
+}
 
 function setupEventListeners() {
-  // Drawer open / close
-  memoryDrawerBtn.addEventListener("click", openDrawer);
-  closeDrawerBtn.addEventListener("click", closeDrawer);
-  drawerBackdrop.addEventListener("click", closeDrawer);
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
+  const dropdownBtn = document.getElementById("user-dropdown-btn");
+  const dropdownMenu = document.getElementById("user-dropdown-menu");
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeDrawer();
-      teachModal.classList.remove("open");
-      simModal.classList.remove("open");
+  // User Dropdown Toggle
+  dropdownBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle("open");
+  });
+
+  document.addEventListener("click", () => {
+    dropdownMenu.classList.remove("open");
+  });
+
+  // Chat Form Submit
+  chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = "";
+    submitMessage(text);
+  });
+
+  // Reset Session
+  document.getElementById("btn-clear-chat").addEventListener("click", async () => {
+    if (!confirm(`Reset chat session and clear local context for ${usersData[currentUserId]?.name || currentUserId}?`)) return;
+    userChatHistories[currentUserId] = [];
+    document.getElementById("chat-messages").innerHTML = "";
+    try {
+      await fetch("/api/clear_memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: currentUserId })
+      });
+      showToast("Session reset successfully.");
+      loadWelcomeMessage(currentUserId);
+    } catch (e) {
+      showToast("Session reset.");
+      loadWelcomeMessage(currentUserId);
     }
   });
 
-  // Drawer Category Tabs
-  catTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      catTabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      currentCategoryFilter = tab.getAttribute("data-category");
-      renderFilteredDrawerCards();
-    });
-  });
+  // Drawer Close
+  document.getElementById("btn-close-drawer").addEventListener("click", closeDetailsDrawer);
+  document.getElementById("drawer-overlay").addEventListener("click", closeDetailsDrawer);
 
-  // Drawer Search & Clear All
-  drawerSearchInput.addEventListener("input", renderFilteredDrawerCards);
-  const clearAllMemoriesBtn = document.getElementById("clearAllMemoriesBtn");
-  if (clearAllMemoriesBtn) {
-    clearAllMemoriesBtn.addEventListener("click", handleClearAllMemories);
-  }
-
-  // Incident Lab Modal Open & Close
-  openSimModalBtn.addEventListener("click", () => simModal.classList.add("open"));
-  closeSimModalBtn.addEventListener("click", () => simModal.classList.remove("open"));
-
-  // Incident Lab Tabs
-  if (tabPresetLogs && tabCustomLogs) {
-    tabPresetLogs.addEventListener("click", () => {
-      tabPresetLogs.classList.add("active");
-      tabCustomLogs.classList.remove("active");
-      panelPresetLogs.style.display = "block";
-      panelCustomLogs.style.display = "none";
-    });
-
-    tabCustomLogs.addEventListener("click", () => {
-      tabCustomLogs.classList.add("active");
-      tabPresetLogs.classList.remove("active");
-      panelCustomLogs.style.display = "block";
-      panelPresetLogs.style.display = "none";
+  // Mode Toggle Listener (Hindsight Copilot vs Standard Chatbot)
+  const btnMode = document.getElementById("btn-mode-toggle");
+  if (btnMode) {
+    btnMode.addEventListener("click", () => {
+      isHindsightMode = !isHindsightMode;
+      updateModeUI();
     });
   }
-
-  // Preset Buttons: Run & Retest
-  document.querySelectorAll(".btn-run-preset").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.getAttribute("data-preset");
-      const preset = PRESET_LOGS[key];
-      if (preset) {
-        simModal.classList.remove("open");
-        executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
-      }
-    });
-  });
-
-  document.querySelectorAll(".btn-retest-preset").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.getAttribute("data-preset");
-      const preset = PRESET_LOGS[key];
-      if (preset) {
-        simModal.classList.remove("open");
-        executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
-      }
-    });
-  });
-
-  // Custom Log Analysis
-  if (btnAnalyzeCustomLog) {
-    btnAnalyzeCustomLog.addEventListener("click", () => {
-      const logText = customLogText.value.trim();
-      if (!logText) {
-        alert("Please paste some error logs or a stack trace to analyze.");
-        return;
-      }
-      const service = customLogService.value.trim() || "api.production.app";
-      simModal.classList.remove("open");
-      executeLogAnalysis(logText, service, "Custom Outage Ingestion");
-      customLogText.value = "";
-    });
-  }
-
-  // Clear Chat Button
-  clearChatBtn.addEventListener("click", resetChatFeed);
-
-  // Chat Submission
-  chatForm.addEventListener("submit", handleChatSubmit);
-
-  // Quick hint chips
-  hintChips.forEach(chip => {
-    chip.addEventListener("click", () => {
-      chatInput.value = chip.getAttribute("data-prompt");
-      handleChatSubmit(new Event("submit"));
-    });
-  });
-
-  // Voice toggle
-  voiceToggleBtn.addEventListener("click", () => {
-    voiceEnabled = !voiceEnabled;
-    voiceToggleBtn.textContent = voiceEnabled ? "Voice: On" : "Voice: Off";
-    if (voiceEnabled) {
-      voiceToggleBtn.classList.add("active");
-      speakText("Voice debrief activated.");
-    } else {
-      voiceToggleBtn.classList.remove("active");
-      if (synth) synth.cancel();
-    }
-  });
-
-  // Teach Rule Modal
-  openTeachModalBtn.addEventListener("click", () => {
-    teachModal.classList.add("open");
-  });
-  closeTeachModalBtn.addEventListener("click", () => teachModal.classList.remove("open"));
-  
-  // Custom Category Toggle ("Other")
-  ruleCategory.addEventListener("change", () => {
-    if (ruleCategory.value === "Other") {
-      customCategoryGroup.style.display = "flex";
-      customCategoryInput.focus();
-    } else {
-      customCategoryGroup.style.display = "none";
-    }
-  });
-
-  saveRuleBtn.addEventListener("click", handleSaveRule);
 }
 
+async function loadUsers() {
+  try {
+    const res = await fetch("/api/users");
+    const data = await res.json();
+    usersData = data.users || {};
+    renderUserDropdown();
+  } catch (err) {
+    console.error("Failed to load users:", err);
+  }
+}
 
-// Reset & Clear Chat Feed
-function resetChatFeed() {
-  chatFeed.innerHTML = `
-    <div class="chat-bubble bot-bubble">
-      <div class="bubble-header">
-        <span class="bubble-sender">Aegis Guardian</span>
-        <span class="bubble-time">Just now</span>
+function renderUserDropdown() {
+  const menu = document.getElementById("user-dropdown-menu");
+  const userItems = Object.keys(usersData).map(uid => {
+    const u = usersData[uid];
+    return `
+      <div class="user-dropdown-item ${uid === currentUserId ? 'active' : ''}" onclick="switchUser('${uid}')">
+        <img src="${u.avatar}" class="user-dropdown-avatar" alt="${u.name}">
+        <div class="user-dropdown-meta">
+          <strong>${u.name}</strong>
+          <span>${u.phone}</span>
+        </div>
+        <span class="user-dropdown-tag">${(u.plan || 'User').split(' ')[0]}</span>
       </div>
-      <div class="bubble-body">
-        <p>Chat cleared. I am monitoring your production services with <strong>Gemini 2.5 Flash</strong> and <strong>Hindsight Cloud</strong> (Bank: <code>production-app</code>).</p>
-        <p>All services are healthy (latency: 38ms). Click <strong>Try Simulation</strong> above to test an outage scenario or ask a question below.</p>
-      </div>
+    `;
+  }).join("");
+
+  const addNewBtn = `
+    <div style="border-top:1px solid var(--border); margin-top:4px; padding-top:4px;">
+      <button onclick="promptAddNewUser()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; background:var(--primary-light); color:var(--primary); border:1px dashed var(--primary-border); border-radius:var(--radius-md); padding:8px; font-size:11px; font-weight:700; cursor:pointer;">
+        <span>➕ Chat as New User / Custom Name</span>
+      </button>
     </div>
   `;
-  chatHistory = [];
+
+  menu.innerHTML = userItems + addNewBtn;
 }
 
-
-// Drawer Open / Close
-function openDrawer() {
-  memoryDrawer.classList.add("open");
-  drawerBackdrop.classList.add("open");
-}
-
-function closeDrawer() {
-  memoryDrawer.classList.remove("open");
-  drawerBackdrop.classList.remove("open");
-}
-
-
-// Execute Log Analysis (Novel diagnosis & learning or Hindsight autonomous match)
-async function executeLogAnalysis(logContent, service, scenarioName) {
-  const shortSnippet = logContent.split("\n").slice(0, 3).join("\n");
-  appendUserMessage(`Analyzing Live Telemetry: ${scenarioName || service}\n\n${shortSnippet}`);
-
-  showTypingIndicator();
+window.promptAddNewUser = async function() {
+  const name = prompt("Enter your Name:", "Thanuj");
+  if (!name || !name.trim()) return;
+  const phone = prompt("Enter your Phone Number:", "+1 (415) 888-1234") || "+1 (555) 019-9000";
 
   try {
-    const res = await fetch("/api/incidents/analyze", {
+    const res = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        log_content: logContent,
-        service: service,
-        scenario_name: scenarioName
+        name: name.trim(),
+        phone: phone.trim()
       })
     });
     const data = await res.json();
-    removeTypingIndicator();
-    appendIncidentAnalysisCard(data, logContent);
-
-    // If novel incident was learned & stored in Hindsight, reload memory bank!
-    if (data.status === "NOVEL_RESOLVED_AND_STORED" || data.retained_memory) {
-      loadMemories();
+    if (data.users) {
+      usersData = data.users;
     }
-
-    if (voiceEnabled) {
-      speakText(data.developer_summary);
-    }
+    const uid = (data.user && data.user.id) || name.trim().toLowerCase().replace(/[^a-z0-9]/g, "_");
+    userSuggestedPrompts[uid] = [
+      `Hi, I am ${name.trim()} and my phone is ${phone.trim()}.`,
+      "What details have you remembered about me so far?",
+      "Can you connect me with a specialist on a voice call?"
+    ];
+    userChatHistories[uid] = [];
+    switchUser(uid);
+    renderUserDropdown();
+    showToast(`Created & switched to new user: ${name.trim()}`);
   } catch (err) {
-    removeTypingIndicator();
-    appendBotMessage(`Incident Analysis Error: ${err.message}`);
+    console.error("Failed to create user on backend:", err);
+  }
+};
+
+function switchUser(uid) {
+  if (!usersData[uid]) return;
+  currentUserId = uid;
+
+  const u = usersData[uid];
+
+  // Update Header Pill
+  document.getElementById("header-user-avatar").src = u.avatar;
+  document.getElementById("header-user-name").textContent = u.name;
+  document.getElementById("header-user-phone").textContent = u.phone;
+
+  // Update Info Strip
+  document.getElementById("strip-name").textContent = u.name;
+  document.getElementById("strip-plan").textContent = u.plan;
+  document.getElementById("strip-phone").textContent = u.phone;
+  document.getElementById("strip-address").textContent = u.address;
+  const orderSummary = (u.orders || []).map(o => o.item).slice(0, 3).join(", ");
+  document.getElementById("strip-orders").textContent = `${u.orders?.length || 0} Orders (${orderSummary}...)`;
+  document.getElementById("strip-wallet").textContent = "$" + Number(u.wallet_balance || 0).toFixed(2);
+  const ticketElem = document.getElementById("strip-tickets");
+  if (ticketElem) ticketElem.textContent = u.total_tickets || 5;
+
+  // Update Chips
+  renderChips(uid);
+
+  // Update Dropdown UI
+  renderUserDropdown();
+  document.getElementById("user-dropdown-menu").classList.remove("open");
+
+  // Load chat history for this user
+  const container = document.getElementById("chat-messages");
+  container.innerHTML = "";
+
+  if (!userChatHistories[uid] || userChatHistories[uid].length === 0) {
+    loadWelcomeMessage(uid);
+  } else {
+    userChatHistories[uid].forEach((msg, idx) => {
+      renderMessage(msg, idx);
+    });
   }
 }
 
-// Backward-compatible trigger for overnight sim
-async function triggerOvernightSimulation(scenarioType) {
-  const key = scenarioType === "known_issue" ? "checkout_pool" : "redis_oom";
-  const preset = PRESET_LOGS[key];
-  if (preset) {
-    executeLogAnalysis(preset.log_content, preset.service, preset.scenario_name);
-  }
+function renderChips(uid) {
+  const container = document.getElementById("chips-container");
+  const prompts = userSuggestedPrompts[uid] || [
+    "I'd like to speak with a human agent on the phone.",
+    "What is the status of my recent order?"
+  ];
+
+  container.innerHTML = prompts.map(p => `
+    <button class="quick-chip" onclick="sendSuggestedPrompt(this)">
+      ${p}
+    </button>
+  `).join("");
 }
 
+function sendSuggestedPrompt(btn) {
+  const text = btn.textContent.trim();
+  document.getElementById("chat-input").value = text;
+  document.getElementById("chat-form").dispatchEvent(new Event("submit"));
+}
 
-// Handle Normal Chat Message
-async function handleChatSubmit(e) {
-  if (e) e.preventDefault();
-  const text = chatInput.value.trim();
-  if (!text) return;
+function loadWelcomeMessage(uid) {
+  const u = usersData[uid] || { name: "there" };
+  const welcome = {
+    sender: "bot",
+    text: `Hello ${u.name.split(' ')[0]}! What can I do for you today?`,
+    time: formatTime(),
+    recalled_memories: []
+  };
+  userChatHistories[uid] = [welcome];
+  renderMessage(welcome, 0);
+}
 
-  appendUserMessage(text);
-  chatInput.value = "";
-  showTypingIndicator();
+function renderMessage(msg, index) {
+  const container = document.getElementById("chat-messages");
+  const row = document.createElement("div");
+  row.className = `message-row ${msg.sender}`;
 
+  const u = usersData[currentUserId] || {};
+  const avatar = msg.sender === "user" ? (u.avatar ? `<img src="${u.avatar}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">` : "👤") : "🧠";
+
+  let howSolvedBtn = "";
+  if (msg.sender === "bot" && index > 0) {
+    howSolvedBtn = `
+      <button class="btn-how-solved" onclick="openDetails(${index})">
+        <span>🔍 How Agent Solved This</span>
+      </button>
+    `;
+  }
+
+  // Voice Call Card if requested
+  let voiceCardHtml = "";
+  if (msg.is_voice_call_request && msg.matched_specialist) {
+    const spec = msg.matched_specialist;
+    voiceCardHtml = `
+      <div class="voice-call-card">
+        <div class="voice-call-header">
+          <div class="voice-call-title">
+            <span>📞 Voice Call Dispatch Protocol</span>
+          </div>
+          <span style="font-size:10px; font-weight:700; background:#ecfdf5; color:#059669; padding:2px 8px; border-radius:9999px; border:1px solid #a7f3d0;">
+            ✓ Phone Verified
+          </span>
+        </div>
+        <div class="voice-call-body">
+          <img src="${spec.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=SupportSpecialist'}" class="voice-agent-avatar" alt="${spec.name}">
+          <div class="voice-agent-meta">
+            <span class="voice-agent-name">${spec.name} (${spec.role})</span>
+            <span class="voice-agent-role">${spec.superpower}</span>
+            <span class="voice-agent-phone">Target Line: ${spec.phone} ➔ ${u.phone || 'Your Number'}</span>
+          </div>
+          <button class="btn-dial" id="dial-btn-${index}" onclick="simulateVoiceDial(${index}, '${spec.name}', '${u.phone}')">
+            <span>📞 Initiate Call</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Interactive Counter-Offer Option Pills
+  let counterOfferHtml = "";
+  if (msg.sender === "bot" && (msg.text.includes("Option A") || msg.text.includes("Trade-In Credit") || msg.text.includes("70% Instant Store"))) {
+    const activeCust = usersData[currentUserId] || {};
+    const orders = activeCust.orders || [];
+    let estVal = "$805.00";
+    let targetOrder = orders.length > 0 ? orders[orders.length - 1] : null;
+    if (orders.length > 0) {
+      // Find matching or latest physical order
+      for (const o of orders) {
+        if (msg.text.toLowerCase().includes((o.item || "").toLowerCase().split(" ")[0])) {
+          targetOrder = o;
+          break;
+        }
+      }
+      if (targetOrder) {
+        try {
+          const rawP = parseFloat(String(targetOrder.price).replace(/[^0-9.]/g, ''));
+          if (!isNaN(rawP)) estVal = "$" + (rawP * 0.70).toFixed(2);
+        } catch (e) {}
+      }
+    }
+
+    counterOfferHtml = `
+      <div class="action-options-container">
+        <div class="action-option-pill" onclick="triggerDirectAction('ACCEPT_COUNTER_OFFER', 'option_a')">
+          <div>
+            <strong>💳 Option A: Instant 70% Trade-In Credit (${estVal})</strong>
+            <span>Direct deposit to your wallet balance immediately. No return waiting.</span>
+          </div>
+          <button class="action-pill-btn">Accept Credit</button>
+        </div>
+        <div class="action-option-pill" onclick="triggerDirectAction('ACCEPT_COUNTER_OFFER', 'option_b')">
+          <div>
+            <strong>🛡️ Option B: 2-Year Hardware Care Plan + $100 Credit</strong>
+            <span>Keep your item with full accidental protection + $100 wallet credit.</span>
+          </div>
+          <button class="action-pill-btn">Enroll Protection</button>
+        </div>
+        <div class="action-option-pill" onclick="triggerDirectAction('GENERATE_RMA', 'label')">
+          <div>
+            <strong>🏷️ Option C: Generate Official Prepaid FedEx Return Label (RMA)</strong>
+            <span>Ship device to Austin depot for physical inspection & exception review.</span>
+          </div>
+          <button class="action-pill-btn" style="background:#0f172a;">Print RMA</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Interactive RMA Label Card
+  let rmaCardHtml = "";
+  if (msg.action_result && (msg.action_result.action_type === "GENERATE_RMA_LABEL" || msg.action_result.rma_number)) {
+    const r = msg.action_result;
+    rmaCardHtml = `
+      <div class="rma-label-card">
+        <div class="rma-label-header">
+          <div class="rma-carrier-logo">FedEx <span>Priority Return</span></div>
+          <div class="rma-badge">✓ PREPAID BILLABLE STAMP</div>
+        </div>
+        <div class="rma-route-grid">
+          <div>
+            <span style="color:#64748b; font-size:10px; font-weight:700;">FROM (SENDER):</span><br>
+            <strong>${r.sender?.name || u.name}</strong><br>
+            <span style="color:#64748b;">${r.sender?.address || u.address}</span>
+          </div>
+          <div>
+            <span style="color:#64748b; font-size:10px; font-weight:700;">TO (DESTINATION):</span><br>
+            <strong>Central Depot #4 QA Bay</strong><br>
+            <span style="color:#64748b;">4000 Tech Ridge, Austin TX</span>
+          </div>
+        </div>
+        <div class="rma-barcode-box">
+          <div class="barcode-lines"></div>
+          <div>${r.tracking_number}</div>
+          <div style="font-size:10px; color:#64748b; margin-top:4px;">RMA: ${r.rma_number} | Payout: ESCROW (Auto-release on scan)</div>
+        </div>
+        <button class="btn-download-label" onclick="showToast('Prepaid FedEx Label generated & ready to print. Tracking active.')">
+          <span>📥 Download & Print Shipping Label (PDF)</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // Action Success Banner
+  let actionSuccessHtml = "";
+  if (msg.action_result && msg.action_result.action_type === "COUNTER_OFFER_ACCEPTED") {
+    const r = msg.action_result;
+    actionSuccessHtml = `
+      <div class="action-success-card">
+        <div class="action-success-title">
+          <span>⚡ Autonomous Resolution Executed</span>
+        </div>
+        <div class="action-success-body">
+          <strong>${r.display_name}</strong><br>
+          ${r.execution_output}<br>
+          <span style="color:#059669; font-weight:700; margin-top:4px; display:inline-block;">✓ Store Credit Deposited: ${r.credit_issued} | Active Wallet: ${r.updated_wallet_balance}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Official CRM Ticket Pill
+  let ticketPillHtml = "";
+  if (msg.ticket) {
+    const t = msg.ticket;
+    const isResolved = (t.status || "").includes("RESOLVED");
+    ticketPillHtml = `
+      <div class="message-ticket-pill">
+        <span class="ticket-pill-id">🎫 Ticket #${t.ticket_id}</span>
+        <span class="ticket-pill-status ${isResolved ? 'status-resolved' : 'status-escalated'}">${t.status_label || t.status}</span>
+        <span class="ticket-pill-priority">${(t.priority || '').split(' ')[0]}</span>
+      </div>
+    `;
+  }
+
+  row.innerHTML = `
+    <div class="message-avatar">${avatar}</div>
+    <div class="message-content" style="max-width: 100%;">
+      <div class="message-bubble">
+        <div>${formatMarkdown(msg.text)}</div>
+        ${counterOfferHtml}
+        ${rmaCardHtml}
+        ${actionSuccessHtml}
+        ${voiceCardHtml}
+        ${ticketPillHtml}
+        <div class="message-footer">
+          <span class="message-time">${msg.time}</span>
+          ${howSolvedBtn}
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(row);
+  scrollToBottom();
+}
+
+window.triggerDirectAction = async function(actionType, choice) {
+  showToast("Executing autonomous resolution...");
   try {
-    const res = await fetch("/api/chat", {
+    const activeCust = usersData[currentUserId] || {};
+    const orders = activeCust.orders || [];
+    const targetOrder = orders.length > 0 ? orders[orders.length - 1] : { id: "ORD-1180", item: "Asset" };
+
+    const res = await fetch("/api/action/execute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history: chatHistory })
+      body: JSON.stringify({
+        user_id: currentUserId,
+        action_type: actionType,
+        order_id: targetOrder.id,
+        item_name: targetOrder.item,
+        offer_choice: choice
+      })
     });
     const data = await res.json();
-    removeTypingIndicator();
-    appendBotMessage(data.reply);
-
-    if (data.memory_added) {
-      loadMemories();
+    if (data.wallet_balance !== undefined) {
+      document.getElementById("strip-wallet").textContent = "$" + Number(data.wallet_balance).toFixed(2);
+      if (usersData[currentUserId]) usersData[currentUserId].wallet_balance = data.wallet_balance;
     }
-
-    if (voiceEnabled) {
-      speakText(data.reply);
+    if (data.total_tickets !== undefined) {
+      const ticketElem = document.getElementById("strip-tickets");
+      if (ticketElem) ticketElem.textContent = data.total_tickets;
+      if (usersData[currentUserId]) usersData[currentUserId].total_tickets = data.total_tickets;
     }
+    const history = userChatHistories[currentUserId];
+    const prevTurn = history.slice().reverse().find(m => m.recalled_memories && m.recalled_memories.length > 0);
+    const queryTitle = actionType === "GENERATE_RMA" 
+      ? `Generate Official Prepaid FedEx Return Label (${targetOrder.item})` 
+      : (choice === "option_a" ? `Accept 70% Trade-In Credit (${targetOrder.item})` : "Accept 2-Year Hardware Care Plan");
+
+    const botMsg = {
+      sender: "bot",
+      text: data.action_result?.execution_output || "Action executed successfully.",
+      time: formatTime(),
+      action_result: data.action_result,
+      user_query: `[Autonomous Action]: ${queryTitle}`,
+      ticket: data.ticket,
+      recalled_memories: prevTurn ? prevTurn.recalled_memories : []
+    };
+    history.push(botMsg);
+    renderMessage(botMsg, history.length - 1);
+    showToast("Autonomous action executed!");
   } catch (err) {
-    removeTypingIndicator();
-    appendBotMessage(`Error communicating with Guardian: ${err.message}`);
+    showToast("Action execution failed.");
   }
-}
+};
 
+window.simulateVoiceDial = function(idx, specialistName, customerPhone) {
+  const btn = document.getElementById(`dial-btn-${idx}`);
+  if (!btn) return;
 
-// Append User Message to Chat
-function appendUserMessage(text) {
-  const bubble = document.createElement("div");
-  bubble.className = "chat-bubble user-bubble";
-  bubble.innerHTML = `
-    <div class="bubble-header">
-      <span class="bubble-sender">You (Developer)</span>
-      <span class="bubble-time">Just now</span>
-    </div>
-    <div class="bubble-body">
-      <p>${escapeHtml(text)}</p>
-    </div>
-  `;
-  chatFeed.appendChild(bubble);
-  chatFeed.scrollTop = chatFeed.scrollHeight;
-  chatHistory.push({ role: "user", content: text });
-}
+  btn.classList.add("dialing");
+  btn.innerHTML = `<span>⏳ Connecting...</span>`;
 
+  setTimeout(() => {
+    btn.classList.remove("dialing");
+    btn.style.background = "#059669";
+    btn.innerHTML = `<span>🟢 Call Connected</span>`;
+    showToast(`Connecting ${specialistName} to ${customerPhone}... Call active.`);
+  }, 1800);
+};
 
-// Append Bot Response
-function appendBotMessage(text) {
-  const bubble = document.createElement("div");
-  bubble.className = "chat-bubble bot-bubble";
-  bubble.innerHTML = `
-    <div class="bubble-header">
-      <span class="bubble-sender">Aegis Guardian</span>
-      <span class="bubble-time">Just now</span>
-    </div>
-    <div class="bubble-body">
-      <p>${escapeHtml(text)}</p>
-    </div>
-  `;
-  chatFeed.appendChild(bubble);
-  chatFeed.scrollTop = chatFeed.scrollHeight;
-  chatHistory.push({ role: "assistant", content: text });
-}
+async function submitMessage(text) {
+  const history = userChatHistories[currentUserId];
+  const userMsg = {
+    sender: "user",
+    text: text,
+    time: formatTime()
+  };
+  history.push(userMsg);
+  renderMessage(userMsg, history.length - 1);
 
-
-// Append Incident Analysis Card to Chat
-function appendIncidentAnalysisCard(event, originalLog) {
-  const card = document.createElement("div");
-  card.className = "incident-event-card";
-
-  const isAutoFix = event.status === "AUTONOMOUS_FIX_APPLIED" || event.is_match;
-  const badgeClass = isAutoFix ? "badge-auto-fix" : "badge-learned";
-  const badgeLabel = isAutoFix 
-    ? `Autonomous Safe Fix Applied (${event.confidence_score}% Hindsight Match)` 
-    : `Novel Incident Learned & Stored in Hindsight Cloud`;
-
-  // Render probes CLI if available
-  let probesHtml = "";
-  if (event.probes && event.probes.length > 0) {
-    probesHtml = `
-      <details class="probe-terminal-toggle" open>
-        <summary>Diagnostic SRE Terminal Probes (${event.probes.length} commands run)</summary>
-        <div class="terminal-probe-box">
-          ${event.probes.map(p => `
-            <div class="terminal-cmd-line"><span class="terminal-prompt">$</span> ${escapeHtml(p.command)}</div>
-            <div class="terminal-out-line">${escapeHtml(p.output)}</div>
-          `).join('')}
-        </div>
-      </details>
-    `;
-  }
-
-  // Render 3-Option Deliberation Matrix if available
-  let optionsHtml = "";
-  if (event.options && event.options.length > 0) {
-    optionsHtml = `
-      <div class="deliberation-box">
-        <div class="deliberation-header">Evaluated Recovery Options (Senior SRE Matrix):</div>
-        <div class="deliberation-grid">
-          ${event.options.map(opt => {
-            const statusLower = (opt.status || "").toLowerCase();
-            const statusClass = statusLower.includes("selected") ? "status-selected" : (statusLower.includes("reject") ? "status-rejected" : "status-fallback");
-            return `
-              <div class="deliberation-item ${statusClass}">
-                <div class="opt-top">
-                  <strong>${escapeHtml(opt.name)}</strong>
-                  <span class="opt-badge">${escapeHtml(opt.status || '')}</span>
-                </div>
-                <div class="opt-cmd"><code>${escapeHtml(opt.command)}</code></div>
-                <div class="opt-risk">${escapeHtml(opt.risk || opt.reason || '')}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  card.innerHTML = `
-    <div class="event-card-header">
-      <span class="event-time-code">${event.scenario_id || event.incident_id} &bull; Just now</span>
-      <span class="event-decision-badge ${badgeClass}">${badgeLabel}</span>
-    </div>
-
-    <div class="event-summary-text">
-      ${event.developer_summary}
-    </div>
-
-    ${probesHtml}
-
-    ${optionsHtml}
-
-    <div class="event-details-grid">
-      <div class="detail-item">
-        <strong>Target Service</strong>
-        <span>${event.service || 'Production Gateway'}</span>
-      </div>
-      <div class="detail-item">
-        <strong>Hindsight Memory Match</strong>
-        <span>${event.matched_memory_id ? `${event.matched_memory_id} (${event.confidence_score}%)` : '0% (Novel Precedent)'}</span>
-      </div>
-      <div class="detail-item">
-        <strong>Root Cause</strong>
-        <span>${event.root_cause}</span>
-      </div>
-      <div class="detail-item">
-        <strong>Action Executed</strong>
-        <span><code>${event.action_taken}</code></span>
-      </div>
-    </div>
-
-    <div class="event-comparison-box">
-      <strong>Why a Standard AI Without Hindsight Fails:</strong>
-      ${event.dumb_ai_comparison}
-    </div>
-
-    <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span class="token-saver-tag">${event.tokens_saved || 'Token-Preserving Mode Active'}</span>
-        ${!isAutoFix ? `<span style="font-size: 11px; color: #047857; font-weight: 600;">Saved into Hindsight Cloud Bank 'production-app'</span>` : ''}
-      </div>
-      ${!isAutoFix ? `
-        <button class="btn btn-secondary btn-sm btn-retest-inline">Trigger Same Bug Again (Test Recall)</button>
-      ` : ''}
-    </div>
-  `;
-
-  // Wire up the inline re-test button
-  const retestBtn = card.querySelector(".btn-retest-inline");
-  if (retestBtn) {
-    retestBtn.addEventListener("click", () => {
-      executeLogAnalysis(originalLog, event.service, `Recurring: ${event.title || event.incident_id}`);
-    });
-  }
-
-  chatFeed.appendChild(card);
-  chatFeed.scrollTop = chatFeed.scrollHeight;
-}
-
-
-// Typing Indicator
-function showTypingIndicator() {
-  const typing = document.createElement("div");
-  typing.id = "typingIndicator";
-  typing.className = "chat-bubble bot-bubble";
-  typing.innerHTML = `
-    <div class="bubble-body" style="padding: 10px 16px; color: #64748b; font-style: italic;">
-      Guardian is querying Hindsight Cloud memory with Gemini 2.5 Flash...
-    </div>
-  `;
-  chatFeed.appendChild(typing);
-  chatFeed.scrollTop = chatFeed.scrollHeight;
-}
-
-function removeTypingIndicator() {
-  const el = document.getElementById("typingIndicator");
-  if (el) el.remove();
-}
-
-
-// Load & Categorize Memories from Hindsight
-async function loadMemories() {
   try {
-    const res = await fetch("/api/memories");
-    const data = await res.json();
-    const rawMemories = data.memories || [];
-    
-    categorizeMemories(rawMemories);
-    updateCategoryCounters();
-    renderFilteredDrawerCards();
+    const currentUser = usersData[currentUserId] || {};
+    const resp = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: text,
+        user_id: currentUserId,
+        user_name: currentUser.name,
+        user_phone: currentUser.phone,
+        user_address: currentUser.address,
+        mode: isHindsightMode ? "hindsight" : "legacy"
+      })
+    });
+
+    const data = await resp.json();
+
+    if (data.total_tickets !== undefined) {
+      const ticketElem = document.getElementById("strip-tickets");
+      if (ticketElem) ticketElem.textContent = data.total_tickets;
+      if (usersData[currentUserId]) usersData[currentUserId].total_tickets = data.total_tickets;
+    }
+
+    const botMsg = {
+      sender: "bot",
+      text: data.reply,
+      time: formatTime(),
+      recalled_memories: data.recalled_memories || [],
+      action_result: data.action_result,
+      logs_inspected: data.logs_inspected || [],
+      behavioral_routing: data.behavioral_routing,
+      is_voice_call_request: data.is_voice_call_request,
+      matched_specialist: data.matched_specialist,
+      user_query: text,
+      ticket: data.ticket,
+      mode: data.mode || (isHindsightMode ? "hindsight" : "legacy")
+    };
+    history.push(botMsg);
+    renderMessage(botMsg, history.length - 1);
+
   } catch (err) {
-    console.error("Failed to load memories:", err);
+    const errorMsg = {
+      sender: "bot",
+      text: "Sorry, I encountered an error connecting to the backend service.",
+      time: formatTime(),
+      recalled_memories: []
+    };
+    history.push(errorMsg);
+    renderMessage(errorMsg, history.length - 1);
   }
 }
 
+window.openDetails = function(index) {
+  const history = userChatHistories[currentUserId];
+  const msg = history[index];
+  if (!msg) return;
 
-function categorizeMemories(rawMemories) {
-  allCategorizedMemories = [];
+  const drawer = document.getElementById("details-drawer");
+  const overlay = document.getElementById("drawer-overlay");
+  const body = document.getElementById("drawer-body");
 
-  rawMemories.forEach(m => {
-    // 1. Safe Playbooks
-    if (m.runbook_command && !m.tags?.includes("policy")) {
-      allCategorizedMemories.push({
-        id: m.incident_id || m.id,
-        category: "playbook",
-        categoryLabel: "Safe Playbook",
-        tagClass: "tag-playbook",
-        title: m.title,
-        body: m.successful_resolution || m.symptoms,
-        runbook: m.runbook_command,
-        raw: m
-      });
-    }
-
-    // 2. Mistakes to Avoid
-    if (m.failed_attempts && m.failed_attempts.length > 0) {
-      m.failed_attempts.forEach(fail => {
-        allCategorizedMemories.push({
-          id: `${m.incident_id || 'INC'}-Avoid`,
-          category: "mistake",
-          categoryLabel: "Avoid Mistake",
-          tagClass: "tag-mistake",
-          title: "Anti-Pattern Warning",
-          body: fail,
-          runbook: null,
-          raw: m
-        });
-      });
-    }
-
-    // 3. Policies / Rules
-    if (m.tags?.includes("policy") || m.tags?.includes("developer-rule")) {
-      allCategorizedMemories.push({
-        id: m.incident_id || m.id,
-        category: "policy",
-        categoryLabel: m.title.replace("Policy: ", "") || "Policy",
-        tagClass: "tag-policy",
-        title: m.title,
-        body: m.root_cause || m.symptoms,
-        runbook: null,
-        raw: m
-      });
-    }
-  });
-}
-
-
-function updateCategoryCounters() {
-  const total = allCategorizedMemories.length;
-  const playbooks = allCategorizedMemories.filter(m => m.category === "playbook").length;
-  const mistakes = allCategorizedMemories.filter(m => m.category === "mistake").length;
-  const policies = allCategorizedMemories.filter(m => m.category === "policy").length;
-
-  catCountAll.textContent = total;
-  catCountPlaybooks.textContent = playbooks;
-  catCountMistakes.textContent = mistakes;
-  catCountPolicies.textContent = policies;
-  memoryBadgeCount.textContent = total;
-}
-
-
-function renderFilteredDrawerCards() {
-  drawerMemoryList.innerHTML = "";
-  const query = drawerSearchInput.value.toLowerCase().trim();
-
-  const filtered = allCategorizedMemories.filter(item => {
-    const matchesCat = currentCategoryFilter === "all" || item.category === currentCategoryFilter;
-    const matchesQuery = !query || 
-      item.title.toLowerCase().includes(query) || 
-      item.body.toLowerCase().includes(query) ||
-      (item.runbook && item.runbook.toLowerCase().includes(query));
-    return matchesCat && matchesQuery;
-  });
-
-  if (!filtered.length) {
-    drawerMemoryList.innerHTML = `
-      <div style="text-align: center; color: #94a3b8; padding: 24px 12px; font-size: 13px;">
-        No memory records found matching criteria.
+  if (msg.mode === "legacy") {
+    body.innerHTML = `
+      <div class="query-banner">
+        <strong>User Query:</strong> "${msg.user_query || ''}"
+      </div>
+      <div class="section-box" style="border-color:#fecdd3; background:#fffafa;">
+        <div class="section-box-title" style="color:#be123c;">
+          <span>🔴 Standard Chatbot Mode (Stateless)</span>
+          <span style="font-size:10px; background:#ffe4e6; color:#be123c; border:1px solid #fecdd3; padding:1px 6px; border-radius:9999px; margin-left:auto;">MEMORY DISABLED</span>
+        </div>
+        <div style="font-size:12px; line-height:1.6; color:#881337;">
+          <div style="margin-bottom:6px;"><strong>• Hindsight Memory Recall:</strong> Bypassed (0 memories fetched). Bot treats customer as an unknown stranger.</div>
+          <div style="margin-bottom:6px;"><strong>• Behavioral Sentiment:</strong> Disabled (No emotion trajectory or specialist match).</div>
+          <div style="margin-bottom:6px;"><strong>• Autonomous Actions:</strong> Disabled (No RMA label or trade-in credit can be executed).</div>
+          <div><strong>• Result:</strong> Bot asks customer to re-enter order details and directs them to a 2–3 business day email queue.</div>
+        </div>
       </div>
     `;
+    drawer.classList.add("open");
+    overlay.classList.add("open");
     return;
   }
 
-  filtered.forEach(item => {
-    const card = document.createElement("div");
-    card.className = `drawer-memory-card type-${item.category}`;
-
-    const memoryTargetId = item.raw.incident_id || item.raw.id;
-
-    card.innerHTML = `
-      <div class="card-meta-top">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #64748b;">${item.id}</span>
-          <span class="card-category-tag ${item.tagClass}">${item.categoryLabel}</span>
+  // Official CRM Ticket Lifecycle Record
+  let ticketRecordHtml = "";
+  if (msg.ticket) {
+    const t = msg.ticket;
+    const isResolved = (t.status || "").includes("RESOLVED");
+    ticketRecordHtml = `
+      <div class="section-box" style="border-color:${isResolved ? '#a7f3d0' : '#fecdd3'}; background:${isResolved ? '#fcfdfd' : '#fffbfb'};">
+        <div class="section-box-title" style="color:${isResolved ? '#059669' : '#e11d48'};">
+          <span>🎫 Official CRM Ticket Lifecycle Record</span>
+          <span style="font-size:10px; background:${isResolved ? '#ecfdf5' : '#fff1f2'}; color:${isResolved ? '#059669' : '#e11d48'}; border:1px solid ${isResolved ? '#a7f3d0' : '#fecdd3'}; padding:1px 6px; border-radius:9999px; margin-left:auto;">${t.status_label || t.status}</span>
         </div>
-        <button class="btn-card-delete" data-id="${memoryTargetId}" title="Delete this memory">&times;</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; margin-bottom:8px;">
+          <div><strong>Ticket ID:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">#${t.ticket_id}</code></div>
+          <div><strong>Priority:</strong> <span class="chip" style="font-weight:700;">${t.priority}</span></div>
+          <div><strong>Customer:</strong> ${t.customer_name} (${t.customer_id})</div>
+          <div><strong>Timestamp:</strong> ${t.created_at || 'Just now'}</div>
+        </div>
+        <div style="font-size:11px; color:#475569; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+          <strong>Ticket Resolution Summary:</strong><br>
+          ${t.resolution_summary}<br>
+          <div style="margin-top:6px; color:#059669; font-weight:600;">
+            ✓ Synchronized to Vectorize Hindsight Cloud bank: <code>mindsupport_master_bank</code>
+          </div>
+        </div>
       </div>
-      <div class="card-title-text">${item.title}</div>
-      <div class="card-body-text">${item.body}</div>
-      ${item.runbook ? `<div class="card-runbook-code"><code>${item.runbook}</code></div>` : ''}
     `;
+  }
 
-    // Delete handler
-    const deleteBtn = card.querySelector(".btn-card-delete");
-    if (deleteBtn) {
-      deleteBtn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        await deleteMemoryItem(memoryTargetId);
-      });
+  // Behavioral Routing View
+  let behaviorHtml = "";
+  if (msg.behavioral_routing) {
+    const b = msg.behavioral_routing;
+    const spec = b.matched_specialist || b.assigned_specialist;
+    const isCritical = (b.detected_temperament || '').includes("Hostile") || (b.volatility_index || '').includes("High") || (b.volatility_score || 0) >= 70;
+    const chipStyle = isCritical 
+      ? 'background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; font-weight:700;' 
+      : '';
+
+    behaviorHtml = `
+      <div class="section-box" style="${isCritical ? 'border-color:#fecdd3; background:#fffbfb;' : ''}">
+        <div class="section-box-title" style="${isCritical ? 'color:#e11d48;' : ''}">
+          <span>👤 Behavioral Sentiment & Specialist Routing</span>
+          ${isCritical ? '<span style="font-size:10px; background:#e11d48; color:white; padding:1px 6px; border-radius:9999px; margin-left:auto;">⚠️ CRITICAL ESCALATION</span>' : ''}
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px; margin-bottom:8px;">
+          <div><strong>Temperament:</strong> <span class="chip" style="${chipStyle}">${b.detected_temperament || b.temperament || 'Standard'}</span></div>
+          <div><strong>Volatility:</strong> <span class="chip" style="${chipStyle}">${b.volatility_index || b.volatility_score || 'Low'}</span></div>
+          <div><strong>VIP Level:</strong> <span class="chip">${b.vip_level || 'Tier 1 Priority'}</span></div>
+          <div><strong>Action Speed:</strong> <span class="chip" style="${isCritical ? chipStyle : ''}">${b.response_urgency || b.escalation_level || 'Normal'}</span></div>
+        </div>
+        ${spec ? `
+          <div style="background:white; border:1px solid ${isCritical ? '#fecdd3' : 'var(--border)'}; padding:8px 10px; border-radius:6px; font-size:11px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <strong>Assigned Specialist:</strong> 
+              <span style="font-weight:700; color:${isCritical ? '#e11d48' : 'var(--primary)'};">${spec.name}</span> 
+              <span style="color:var(--text-muted); font-size:10px;">(${spec.role})</span>
+            </div>
+            <div style="color:var(--text-muted); margin-top:3px; line-height:1.4;">
+              <strong>Rationale:</strong> ${b.routing_rationale || b.routing_reason || spec.superpower}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // Format memories
+  let memoryItemsHtml = "";
+  if (msg.recalled_memories && msg.recalled_memories.length > 0) {
+    memoryItemsHtml = msg.recalled_memories.map(m => `
+      <div class="memory-item">
+        <div>${m.text}</div>
+        ${m.entities && m.entities.length > 0 ? `
+          <div class="memory-chips">
+            ${m.entities.map(e => `<span class="chip">#${e}</span>`).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `).join("");
+  } else {
+    memoryItemsHtml = `<p style="font-size:12px; color:#94a3b8;">No prior memories were retrieved for this query.</p>`;
+  }
+
+  // Format Autonomous Action or Policy Decision Breakdown
+  let actionHtml = "";
+  if (msg.action_result) {
+    const act = msg.action_result;
+    let detailsSpecific = "";
+    if (act.rma_number) {
+      detailsSpecific = `
+        <div style="font-size:12px; margin-bottom:4px;"><strong>RMA Code:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">${act.rma_number}</code></div>
+        <div style="font-size:12px; margin-bottom:4px;"><strong>Tracking ID:</strong> <code>${act.tracking_number}</code> (${act.carrier || 'FedEx Priority'})</div>
+        <div style="font-size:12px; margin-bottom:4px;"><strong>Payout Protocol:</strong> <span class="chip" style="background:#fef3c7; color:#92400e;">${act.payout_status || 'ESCROW HOLD'}</span></div>
+        <div style="font-size:11px; color:#475569; margin-top:8px; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+          <strong>🛡️ Risk Guardrails Verified:</strong><br>
+          ✓ Financial Escrow: Funds hold locked until carrier intake scan.<br>
+          ✓ Idempotency: Single-use RMA code registered in master ledger.<br>
+          ✓ Inspection Checklist: iCloud sign-out & charger verification required.
+        </div>
+      `;
+    } else if (act.credit_issued) {
+      detailsSpecific = `
+        <div style="font-size:12px; margin-bottom:4px;"><strong>Resolution Type:</strong> ${act.resolution_type}</div>
+        <div style="font-size:12px; margin-bottom:4px; color:#059669;"><strong>Store Credit Deposited:</strong> <strong>${act.credit_issued}</strong></div>
+        <div style="font-size:12px; margin-bottom:4px;"><strong>Updated Wallet Balance:</strong> ${act.updated_wallet_balance}</div>
+        <div style="font-size:11px; color:#475569; margin-top:8px; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+          <strong>🛡️ Risk Guardrails Verified:</strong><br>
+          ✓ Hard Financial Cap: Capped strictly at 70% of verified order value.<br>
+          ✓ Anti-Bleed Idempotency: Duplicate credit attempts automatically rejected.<br>
+          ✓ Ledger Entry: Synchronized to customer account balance.
+        </div>
+      `;
+    } else if (act.diagnostic) {
+      detailsSpecific = `
+        <div style="font-size:12px; margin-bottom:6px;"><strong>Diagnostic Root-Cause:</strong> ${act.diagnostic}</div>
+        <div style="font-size:12px; color:#059669;"><strong>Execution Result:</strong> ${act.execution_output}</div>
+      `;
     }
 
-    drawerMemoryList.appendChild(card);
-  });
-}
-
-// Delete single memory item
-async function deleteMemoryItem(memoryId) {
-  try {
-    const res = await fetch("/api/memories/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ memory_id: memoryId })
-    });
-    await res.json();
-    loadMemories();
-  } catch (err) {
-    console.error("Failed to delete memory:", err);
-  }
-}
-
-// Clear all memories
-async function handleClearAllMemories() {
-  if (confirm("Are you sure you want to clear all memories from the bank?")) {
-    try {
-      await fetch("/api/memories/clear", { method: "POST" });
-      loadMemories();
-    } catch (err) {
-      console.error("Failed to clear memories:", err);
-    }
-  }
-}
-
-
-// Save New Rule (Supports "Other" custom category)
-async function handleSaveRule() {
-  const text = ruleText.value.trim();
-  let selectedCategory = ruleCategory.value;
-
-  if (selectedCategory === "Other") {
-    const customName = customCategoryInput.value.trim();
-    if (!customName) {
-      alert("Please enter a custom category name.");
-      customCategoryInput.focus();
-      return;
-    }
-    selectedCategory = customName;
+    actionHtml = `
+      <div class="section-box" style="border-color:#a7f3d0; background:#fcfdfd;">
+        <div class="section-box-title" style="color:#059669;">
+          <span>⚡ Autonomous Resolution Executed</span>
+          <span style="font-size:10px; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:1px 6px; border-radius:9999px; margin-left:auto;">COMPLETED</span>
+        </div>
+        <div style="font-size:12px; margin-bottom:6px; font-weight:700;">${act.display_name || 'Autonomous Action Execution'}</div>
+        ${detailsSpecific}
+      </div>
+    `;
+  } else if (msg.sender === "bot") {
+    actionHtml = `
+      <div class="section-box" style="border-color:#e0e7ff; background:#fbfcfe;">
+        <div class="section-box-title" style="color:#4338ca;">
+          <span>📋 Autonomous Policy & Decision Engine Audit</span>
+          <span style="font-size:10px; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; padding:1px 6px; border-radius:9999px; margin-left:auto;">VERIFIED</span>
+        </div>
+        <div style="font-size:12px; line-height:1.6; color:#334155;">
+          <div style="margin-bottom:6px;"><strong>1. Account & Order Verification:</strong> Evaluated purchase date, item serial records, and account warranty ledger.</div>
+          <div style="margin-bottom:6px;"><strong>2. Policy Engine Check:</strong> Standard 30-day window evaluated. Flagged high-value asset inspection requirement (prevents return fraud on assets &gt;$1,000).</div>
+          <div style="margin-bottom:6px;"><strong>3. Risk & Financial Guardrails:</strong> Pre-authorized bounded concessions (strict 70% trade-in valuation ceiling, escrow hold on RMA returns, idempotency locks).</div>
+          <div><strong>4. Autonomous Path Forward:</strong> Multi-option resolution matrix presented directly in UI without human employee bottleneck.</div>
+        </div>
+      </div>
+    `;
   }
 
-  if (!text) {
-    alert("Please enter a rule description.");
-    return;
+  // Format Logs
+  let logsHtml = "";
+  if (msg.logs_inspected && msg.logs_inspected.length > 0) {
+    logsHtml = `
+      <div class="section-box">
+        <div class="section-box-title">📡 Live Warehouse & Gateway Logs Inspected (${msg.logs_inspected.length} lines)</div>
+        <div class="log-terminal-mini">
+          ${msg.logs_inspected.map(line => {
+            let cls = "terminal-line";
+            if (line.includes("422") || line.includes("expired") || line.includes("ERR") || line.includes("stalled") || line.includes("500") || line.includes("MISMATCH")) cls += " terminal-err";
+            else if (line.includes("APPROVED") || line.includes("OK") || line.includes("verified") || line.includes("DELIVERED") || line.includes("ACTIVE")) cls += " terminal-success";
+            return `<div class="${cls}">${line}</div>`;
+          }).join("")}
+        </div>
+      </div>
+    `;
   }
 
-  try {
-    const res = await fetch("/api/teach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rule_text: text, category: selectedCategory })
-    });
-    const data = await res.json();
-    teachModal.classList.remove("open");
-    ruleText.value = "";
-    customCategoryInput.value = "";
-    customCategoryGroup.style.display = "none";
-    ruleCategory.value = "Database Policy";
+  body.innerHTML = `
+    <div class="query-banner">
+      <strong>User Query:</strong> "${msg.user_query || ''}"
+    </div>
 
-    appendBotMessage(`I have committed your new rule to Hindsight Cloud memory under "${selectedCategory}": "${text}". I will enforce this rule going forward.`);
-    loadMemories();
-  } catch (err) {
-    alert("Error saving rule: " + err.message);
+    ${ticketRecordHtml}
+    ${behaviorHtml}
+    ${actionHtml}
+    ${logsHtml}
+
+    <div class="section-box">
+      <div class="section-box-title">🧠 Specific Hindsight Memories Recalled (${msg.recalled_memories ? msg.recalled_memories.length : 0})</div>
+      ${memoryItemsHtml}
+    </div>
+  `;
+
+  drawer.classList.add("open");
+  overlay.classList.add("open");
+};
+
+function closeDetailsDrawer() {
+  document.getElementById("details-drawer").classList.remove("open");
+  document.getElementById("drawer-overlay").classList.remove("open");
+}
+
+function formatMarkdown(text) {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background:#f1f5f9; color:#0f172a; padding:2px 5px; border-radius:4px; font-family:var(--font-mono); font-size:12px;">$1</code>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function formatTime() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function scrollToBottom() {
+  const container = document.getElementById("chat-messages");
+  container.scrollTop = container.scrollHeight;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+/* ==========================================================================
+   MODE CONTROLLER: HINDSIGHT COPILOT VS STANDARD CHATBOT
+   ========================================================================== */
+function updateModeUI() {
+  const btn = document.getElementById("btn-mode-toggle");
+  const modeText = document.getElementById("mode-text");
+  const modeBadge = document.getElementById("mode-badge");
+  const legacyBanner = document.getElementById("legacy-banner");
+
+  if (!btn) return;
+
+  if (isHindsightMode) {
+    btn.className = "btn-mode-toggle mode-hindsight";
+    if (modeText) modeText.textContent = "Hindsight Active";
+    if (modeBadge) modeBadge.textContent = "AI Copilot";
+    if (legacyBanner) legacyBanner.style.display = "none";
+    showToast("🟢 MindSupport AI Active: Vectorize Hindsight Persistent Memory & Autonomous Actions Enabled");
+  } else {
+    btn.className = "btn-mode-toggle mode-legacy";
+    if (modeText) modeText.textContent = "Standard Bot";
+    if (modeBadge) modeBadge.textContent = "No Memory";
+    if (legacyBanner) legacyBanner.style.display = "flex";
+    showToast("🔴 Standard Chatbot Mode Active: Stateless (No memory, asks for name/order ID every time)");
   }
-}
-
-
-// Speech Synthesis
-function speakText(text) {
-  if (!voiceEnabled || !synth) return;
-  synth.cancel();
-
-  const clean = text.replace(/[*#`_~]/g, "");
-  const utterance = new SpeechSynthesisUtterance(clean);
-  utterance.rate = 1.0;
-  synth.speak(utterance);
-}
-
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
 }
