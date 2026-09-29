@@ -156,29 +156,86 @@ class GuardianAgent:
             probe_cmd_1 = "redis-cli info memory"
             probe_cmd_2 = "redis-cli keys 'lock:*'"
             fallback_title = "Redis Maxmemory Saturation: Write Commands Blocked"
-            fallback_cause = "Redis server reached maxmemory limit (2GB). Write operations rejected by policy: noeviction."
-            opt1 = {"name": "Naive Container Reboot", "command": "docker restart redis", "risk": "Data Loss Risk (Unsaved writes lost, cold cache stampede)", "score": 25, "status": "REJECTED"}
-            opt2 = {"name": "Traffic Throttling", "command": "scripts/throttle_ingress.sh --rate 50%", "risk": "Customer Impact (50% checkout failure rate)", "score": 60, "status": "FALLBACK"}
-            opt3 = {"name": "Dynamic Memory Expansion", "command": "redis-cli config set maxmemory 4294967296", "risk": "Zero downtime, non-destructive live expansion", "score": 98, "status": "SELECTED"}
-            avoid = "Never run FLUSHALL or blind restart without checking AOF/RDB persistence."
+            fallback_cause = "Redis server reached its configured 2GB maxmemory limit. All new write operations are actively rejected by the 'noeviction' policy."
+            opt1 = {
+                "name": "Naive Container Reboot", 
+                "command": "docker restart redis", 
+                "risk": "High Data Loss Risk: In-memory session locks are lost and a cold-cache storm will overload the primary database upon boot.", 
+                "score": 25, 
+                "status": "REJECTED"
+            }
+            opt2 = {
+                "name": "Traffic Throttling", 
+                "command": "scripts/throttle_ingress.sh --rate 50%", 
+                "risk": "Customer Impact: Prevents outright crash but drops 50% of customer checkout requests during peak hours.", 
+                "score": 60, 
+                "status": "FALLBACK"
+            }
+            opt3 = {
+                "name": "Dynamic Memory Expansion", 
+                "command": "redis-cli config set maxmemory 4294967296", 
+                "risk": "Zero Downtime: Non-destructively expands memory ceiling live to 4GB, instantly clearing write blocks.", 
+                "score": 98, 
+                "status": "SELECTED"
+            }
+            avoid = "Executing FLUSHALL or restarting the instance without verifying RDB/AOF persistence."
+            dumb_ai_text = "A standard AI chatbot without persistent memory would recommend restarting the Redis container or running FLUSHALL. This leads to immediate loss of active session state and triggers a massive cold-cache stampede on the primary database, turning a 10-second fix into a 45-minute total outage."
         elif "disk" in log_lower or "panic" in log_lower or "postgres" in log_lower:
             probe_cmd_1 = "df -h /var/lib/postgresql/data"
             probe_cmd_2 = "kubectl get pods -n prod -l app=checkout-api"
             fallback_title = "PostgreSQL Disk Space Saturation: WAL Archiving Halt"
-            fallback_cause = "Data partition reached 100% volume capacity, halting WAL archive transactions."
-            opt1 = {"name": "Hard Kill Database Process", "command": "kill -9 $(pgrep postgres)", "risk": "Severe (Risk of database corruption and transaction loss)", "score": 10, "status": "REJECTED"}
-            opt2 = {"name": "Pause Application Ingress", "command": "scripts/pause_api_traffic.sh", "risk": "Downtime (Stops client transactions)", "score": 55, "status": "FALLBACK"}
-            opt3 = {"name": "Purge Stale WAL Archives & Expand Volume", "command": "scripts/purge_stale_wal.sh --keep 2 && lvextend -L +50G /dev/data", "risk": "Safe, non-destructive reclaim of disk buffers", "score": 96, "status": "SELECTED"}
-            avoid = "Never delete active pg_wal segments manually without using pg_archivecleanup."
+            fallback_cause = "Data partition reached 100% volume capacity, halting PostgreSQL write-ahead log (WAL) archiving and refusing write queries."
+            opt1 = {
+                "name": "Hard Kill Database Process", 
+                "command": "kill -9 $(pgrep postgres)", 
+                "risk": "Severe Corruption Risk: Abruptly killing active writer threads risks corrupting shared buffers and uncommitted transactions.", 
+                "score": 10, 
+                "status": "REJECTED"
+            }
+            opt2 = {
+                "name": "Pause Application Ingress", 
+                "command": "scripts/pause_api_traffic.sh", 
+                "risk": "Total Downtime: Halts all incoming user transactions while the database partition remains full.", 
+                "score": 55, 
+                "status": "FALLBACK"
+            }
+            opt3 = {
+                "name": "Purge Stale WAL Archives & Expand Volume", 
+                "command": "scripts/purge_stale_wal.sh --keep 2 && lvextend -L +50G /dev/data", 
+                "risk": "Safe & Non-Destructive: Safely reclaims archived log segments with pg_archivecleanup and expands volume capacity.", 
+                "score": 96, 
+                "status": "SELECTED"
+            }
+            avoid = "Deleting active pg_wal files manually without using pg_archivecleanup."
+            dumb_ai_text = "A naive AI with write access would blindly force-kill the PostgreSQL daemon or attempt to delete raw pg_wal files manually. This leads to irreversible transaction log corruption, requiring an agonizing multi-hour restore from cold backups."
         else:
             probe_cmd_1 = "cat /proc/meminfo | grep -E 'Slab|SUnreclaim'"
             probe_cmd_2 = "uname -r && bpftool prog list"
             fallback_title = "Production Service Degraded: Latency Spike"
             fallback_cause = "System resource constraint detected in application runtime."
-            opt1 = {"name": "Blind Pod Restart", "command": "kubectl rollout restart deployment", "risk": "Cascading pod restart storms", "score": 30, "status": "REJECTED"}
-            opt2 = {"name": "Isolate Traffic", "command": "scripts/isolate_service.sh", "risk": "Reduced application capacity", "score": 65, "status": "FALLBACK"}
-            opt3 = {"name": "Safe Pool Recycling & Cache Flush", "command": "scripts/safe_recycle.sh", "risk": "Surgical non-destructive reset", "score": 95, "status": "SELECTED"}
-            avoid = "Blind reboot without analyzing kernel/memory buffers."
+            opt1 = {
+                "name": "Blind Pod Restart", 
+                "command": "kubectl rollout restart deployment", 
+                "risk": "Cascading Failure: Blind restarts cause new pods to immediately fail startup probes against exhausted thread pools.", 
+                "score": 30, 
+                "status": "REJECTED"
+            }
+            opt2 = {
+                "name": "Isolate Traffic", 
+                "command": "scripts/isolate_service.sh", 
+                "risk": "Degraded Service: Drastically reduces API capacity while troubleshooting proceeds.", 
+                "score": 65, 
+                "status": "FALLBACK"
+            }
+            opt3 = {
+                "name": "Safe Pool Recycling & Cache Flush", 
+                "command": "scripts/safe_recycle.sh", 
+                "risk": "Surgical Precision: Gracefully cycles idle connection descriptors without dropping in-flight client requests.", 
+                "score": 95, 
+                "status": "SELECTED"
+            }
+            avoid = "Executing blind rolling restarts without diagnosing kernel and connection buffers."
+            dumb_ai_text = "Without persistent memory, a standard AI would recommend a blind 'kubectl rollout restart'. This leads to cascading pod restart storms where new pods immediately crash against exhausted thread pools, multiplying error rates across all downstream microservices."
 
         probe_out_1 = get_probe_result(probe_cmd_1)
         probe_out_2 = get_probe_result(probe_cmd_2)
@@ -186,7 +243,7 @@ class GuardianAgent:
         diagnosis = {
             "title": scenario_name or fallback_title,
             "root_cause": fallback_cause,
-            "danger_assessment": opt1["risk"],
+            "danger_assessment": dumb_ai_text,
             "options": [opt1, opt2, opt3],
             "safe_remediation_command": opt3["command"],
             "what_to_avoid": avoid,
