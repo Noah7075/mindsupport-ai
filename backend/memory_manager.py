@@ -190,23 +190,23 @@ class MemoryManager:
                 print(f"[MemoryManager] Cloud recall fallback: {e}")
 
         # Local semantic-style matching with keyword + tag boosting
-        query_words = set(query.lower().replace("-", " ").replace("_", " ").split())
+        stopwords = {"the", "and", "for", "with", "this", "that", "from", "when", "used", "error", "traceback", "line", "file", "most", "recent", "call", "last"}
+        query_words = [w for w in query.lower().replace("-", " ").replace("_", " ").replace(":", " ").replace(".", " ").split() if len(w) > 2 and w not in stopwords]
         scored = []
         for mem in self.local_memories:
-            text = f"{mem['title']} {mem['symptoms']} {mem['root_cause']} {' '.join(mem['tags'])}".lower()
-            overlap = sum(1 for w in query_words if len(w) > 2 and w in text)
+            text = f"{mem['title']} {mem['symptoms']} {mem['root_cause']} {' '.join(mem['tags'])} {mem.get('runbook_command', '')}".lower()
+            overlap_count = sum(1 for w in query_words if w in text)
             
-            # Bonus if high overlap with key terms
+            # Need at least 2 distinct domain keywords to match
             score = 0.0
-            if overlap > 0:
-                score = min(0.98, 0.4 + (overlap * 0.12))
-            
-            # Boost score if stage is battle-tested
-            if mem.get("vigilance_stage") == "BATTLE_TESTED":
-                score = min(0.99, score + 0.05)
+            if overlap_count >= 2 and query_words:
+                ratio = overlap_count / len(query_words)
+                score = round(min(0.98, ratio * 1.1), 2)
+                if score >= 0.80 and mem.get("vigilance_stage") == "BATTLE_TESTED":
+                    score = min(0.98, score + 0.05)
                 
-            if score >= 0.5:
-                scored.append({"memory": mem, "score": round(score, 2)})
+            if score >= 0.70:
+                scored.append({"memory": mem, "score": score})
 
         scored.sort(key=lambda x: x["score"], reverse=True)
         return scored

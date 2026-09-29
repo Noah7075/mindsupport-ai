@@ -49,6 +49,18 @@ asyncpg.exceptions.PoolTimeoutError: connection acquisition timeout: pool exhaus
 }
 
 PROBE_COMMAND_OUTPUTS = {
+    "redis-cli info memory": """used_memory: 2097152000
+used_memory_human: 2.00G
+maxmemory: 2097152000
+maxmemory_human: 2.00G
+maxmemory_policy: noeviction
+mem_fragmentation_ratio: 1.12
+[ALERT: Used memory exceeds maxmemory (2.00G). Write commands rejected by policy: noeviction]""",
+
+    "df -h /var/lib/postgresql/data": """Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p2  200G  199G  140M 100% /var/lib/postgresql/data
+[CRITICAL: 100% volume capacity reached. PostgreSQL WAL archiving blocked]""",
+
     "redis-cli keys 'lock:*'": """1) "lock:checkout_sync:usr_8921"
 2) "lock:checkout_sync:usr_9912"
 3) "lock:checkout_sync:usr_0023"

@@ -391,6 +391,48 @@ function appendIncidentAnalysisCard(event, originalLog) {
     ? `Autonomous Safe Fix Applied (${event.confidence_score}% Hindsight Match)` 
     : `Novel Incident Learned & Stored in Hindsight Cloud`;
 
+  // Render probes CLI if available
+  let probesHtml = "";
+  if (event.probes && event.probes.length > 0) {
+    probesHtml = `
+      <details class="probe-terminal-toggle" open>
+        <summary>Diagnostic SRE Terminal Probes (${event.probes.length} commands run)</summary>
+        <div class="terminal-probe-box">
+          ${event.probes.map(p => `
+            <div class="terminal-cmd-line"><span class="terminal-prompt">$</span> ${escapeHtml(p.command)}</div>
+            <div class="terminal-out-line">${escapeHtml(p.output)}</div>
+          `).join('')}
+        </div>
+      </details>
+    `;
+  }
+
+  // Render 3-Option Deliberation Matrix if available
+  let optionsHtml = "";
+  if (event.options && event.options.length > 0) {
+    optionsHtml = `
+      <div class="deliberation-box">
+        <div class="deliberation-header">Evaluated Recovery Options (Senior SRE Matrix):</div>
+        <div class="deliberation-grid">
+          ${event.options.map(opt => {
+            const statusLower = (opt.status || "").toLowerCase();
+            const statusClass = statusLower.includes("selected") ? "status-selected" : (statusLower.includes("reject") ? "status-rejected" : "status-fallback");
+            return `
+              <div class="deliberation-item ${statusClass}">
+                <div class="opt-top">
+                  <strong>${escapeHtml(opt.name)}</strong>
+                  <span class="opt-badge">${escapeHtml(opt.status || '')}</span>
+                </div>
+                <div class="opt-cmd"><code>${escapeHtml(opt.command)}</code></div>
+                <div class="opt-risk">${escapeHtml(opt.risk || opt.reason || '')}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   card.innerHTML = `
     <div class="event-card-header">
       <span class="event-time-code">${event.scenario_id || event.incident_id} &bull; Just now</span>
@@ -400,6 +442,10 @@ function appendIncidentAnalysisCard(event, originalLog) {
     <div class="event-summary-text">
       ${event.developer_summary}
     </div>
+
+    ${probesHtml}
+
+    ${optionsHtml}
 
     <div class="event-details-grid">
       <div class="detail-item">
@@ -425,12 +471,15 @@ function appendIncidentAnalysisCard(event, originalLog) {
       ${event.dumb_ai_comparison}
     </div>
 
-    ${!isAutoFix ? `
-      <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-        <span style="font-size: 12px; color: #047857; font-weight: 600;">Saved into Hindsight Cloud Bank 'production-app'</span>
-        <button class="btn btn-secondary btn-sm btn-retest-inline">Trigger Same Bug Again (Test Recall)</button>
+    <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="token-saver-tag">${event.tokens_saved || 'Token-Preserving Mode Active'}</span>
+        ${!isAutoFix ? `<span style="font-size: 11px; color: #047857; font-weight: 600;">Saved into Hindsight Cloud Bank 'production-app'</span>` : ''}
       </div>
-    ` : ''}
+      ${!isAutoFix ? `
+        <button class="btn btn-secondary btn-sm btn-retest-inline">Trigger Same Bug Again (Test Recall)</button>
+      ` : ''}
+    </div>
   `;
 
   // Wire up the inline re-test button
