@@ -99,6 +99,21 @@ def get_memories():
     }
 
 
+class DeleteMemoryRequest(BaseModel):
+    memory_id: str
+
+@app.post("/api/memories/delete")
+def delete_memory(req: DeleteMemoryRequest):
+    deleted = memory_mgr.delete(req.memory_id)
+    return {"status": "DELETED" if deleted else "NOT_FOUND"}
+
+
+@app.post("/api/memories/clear")
+def clear_all_memories():
+    memory_mgr.clear_all()
+    return {"status": "CLEARED"}
+
+
 @app.post("/api/teach")
 def teach_rule(req: TeachRequest):
     new_mem = memory_mgr.retain(

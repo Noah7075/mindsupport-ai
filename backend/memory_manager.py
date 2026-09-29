@@ -211,5 +211,24 @@ class MemoryManager:
                 return mem
         return None
 
+    def delete(self, memory_id: str) -> bool:
+        """
+        Delete a memory by id or incident_id
+        """
+        initial_len = len(self.local_memories)
+        self.local_memories = [m for m in self.local_memories if m.get("id") != memory_id and m.get("incident_id") != memory_id]
+        if len(self.local_memories) < initial_len:
+            self._save_local_memories(self.local_memories)
+            return True
+        return False
+
+    def clear_all(self):
+        """
+        Clear all memories from the bank
+        """
+        self.local_memories = []
+        self._save_local_memories(self.local_memories)
+        return True
+
     def get_all(self) -> List[Dict[str, Any]]:
         return self.local_memories

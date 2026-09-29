@@ -85,8 +85,12 @@ function setupEventListeners() {
     });
   });
 
-  // Drawer Search
+  // Drawer Search & Clear All
   drawerSearchInput.addEventListener("input", renderFilteredDrawerCards);
+  const clearAllMemoriesBtn = document.getElementById("clearAllMemoriesBtn");
+  if (clearAllMemoriesBtn) {
+    clearAllMemoriesBtn.addEventListener("click", handleClearAllMemories);
+  }
 
   // Simulations Modal
   openSimModalBtn.addEventListener("click", () => simModal.classList.add("open"));
@@ -457,18 +461,59 @@ function renderFilteredDrawerCards() {
     const card = document.createElement("div");
     card.className = `drawer-memory-card type-${item.category}`;
 
+    const memoryTargetId = item.raw.incident_id || item.raw.id;
+
     card.innerHTML = `
       <div class="card-meta-top">
-        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #64748b;">${item.id}</span>
-        <span class="card-category-tag ${item.tagClass}">${item.categoryLabel}</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #64748b;">${item.id}</span>
+          <span class="card-category-tag ${item.tagClass}">${item.categoryLabel}</span>
+        </div>
+        <button class="btn-card-delete" data-id="${memoryTargetId}" title="Delete this memory">&times;</button>
       </div>
       <div class="card-title-text">${item.title}</div>
       <div class="card-body-text">${item.body}</div>
       ${item.runbook ? `<div class="card-runbook-code"><code>${item.runbook}</code></div>` : ''}
     `;
 
+    // Delete handler
+    const deleteBtn = card.querySelector(".btn-card-delete");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        await deleteMemoryItem(memoryTargetId);
+      });
+    }
+
     drawerMemoryList.appendChild(card);
   });
+}
+
+// Delete single memory item
+async function deleteMemoryItem(memoryId) {
+  try {
+    const res = await fetch("/api/memories/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ memory_id: memoryId })
+    });
+    await res.json();
+    loadMemories();
+  } catch (err) {
+    console.error("Failed to delete memory:", err);
+  }
+}
+
+// Clear all memories
+async function handleClearAllMemories() {
+  if (confirm("Are you sure you want to clear all memories from the bank?")) {
+    try {
+      await fetch("/api/memories/clear", { method: "POST" });
+      loadMemories();
+    } catch (err) {
+      console.error("Failed to clear memories:", err);
+    }
+  }
 }
 
 

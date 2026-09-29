@@ -676,6 +676,23 @@ body {
   border-radius: 3px;
 }
 
+.btn-card-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-card-delete:hover {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
 .tag-playbook {
   background-color: var(--color-success-light);
   color: #047857;
