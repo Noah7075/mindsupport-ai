@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Guardian — SRE Incident Assistant with Hindsight Cloud</title>
+  <meta name="description" content="AI SRE assistant for solo developers and teams, using Hindsight persistent memory as an autonomy safety gate.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="brand-title">Aegis Guardian</span>
+      <span class="brand-divider">/</span>
+      <span class="brand-tag">SRE On-Call Co-Pilot</span>
+    </div>
+
+    <div class="nav-status">
+      <span class="status-badge status-healthy">
+        <span class="dot"></span> Monitoring: api.production.app/health
+      </span>
+    </div>
+
+    <div class="nav-actions">
+      <button id="voiceToggleBtn" class="btn btn-secondary btn-sm">Voice: Off</button>
+      <button id="settingsBtn" class="btn btn-secondary btn-sm">Settings</button>
+    </div>
+  </header>
+
+  <!-- Main 2-Column Container -->
+  <div class="main-layout">
+    
+    <!-- LEFT COLUMN: Chat Stream & Overnight Activity Feed -->
+    <main class="chat-section">
+      
+      <!-- Simulation Controls Header -->
+      <div class="simulation-banner">
+        <span class="simulation-label">Simulate Overnight Incident:</span>
+        <div class="simulation-buttons">
+          <button id="simKnownBtn" class="btn btn-simulation">
+            2:14 AM Crash (Known Bug - Safe Auto-Fix)
+          </button>
+          <button id="simNovelBtn" class="btn btn-simulation">
+            3:30 AM Crash (Novel Bug - Safe Containment)
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Feed -->
+      <div id="chatFeed" class="chat-feed">
+        
+        <!-- Welcome Message -->
+        <div class="chat-bubble bot-bubble">
+          <div class="bubble-header">
+            <span class="bubble-sender">Aegis Guardian</span>
+            <span class="bubble-time">Just now</span>
+          </div>
+          <div class="bubble-body">
+            <p>Good morning! I monitored your production services while you were sleeping. Connected live to <strong>Hindsight Cloud</strong> (Memory Bank: <code>production-app</code>).</p>
+            <p>All health checks are currently passing (response time: 38ms). You can click an overnight simulation above to see how memory-gated autonomy works, ask me questions about your infrastructure, or teach me a new system rule.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-area">
+        <form id="chatForm" class="chat-input-form">
+          <input 
+            type="text" 
+            id="chatInput" 
+            class="chat-input-field" 
+            placeholder="Ask a question (e.g. 'Why shouldn't I restart pods?') or type 'remember: rule'..." 
+            autocomplete="off"
+          >
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+        <div class="chat-hints">
+          <span>Quick prompts:</span>
+          <button class="hint-chip" data-prompt="What happened overnight?">What happened overnight?</button>
+          <button class="hint-chip" data-prompt="Why shouldn't I restart checkout pods?">Why not restart pods?</button>
+          <button class="hint-chip" data-prompt="What are our safe playbooks?">What are our safe playbooks?</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT COLUMN: Hindsight Memory Bank -->
+    <aside class="memory-sidebar">
+      
+      <div class="sidebar-header">
+        <div>
+          <h2 class="sidebar-title">Hindsight Memory Bank</h2>
+          <p class="sidebar-subtitle">Cloud Bank: <strong id="cloudBankLabel">production-app</strong></p>
+        </div>
+        <button id="openTeachModalBtn" class="btn btn-primary btn-sm">+ Teach Rule</button>
+      </div>
+
+      <!-- Memory Safety Explainer -->
+      <div class="safety-banner">
+        <strong>Memory-Gated Autonomy:</strong>
+        <p>I only auto-fix crashes while you sleep if Hindsight Cloud has a <em>verified playbook</em> (90%+ confidence). Novel issues are safely held for human review.</p>
+      </div>
+
+      <!-- Memory Records List -->
+      <div class="memory-sections">
+        
+        <div class="section-title-wrap">
+          <span class="section-title">Verified Safe Playbooks (Auto-Run Permitted)</span>
+        </div>
+        <div id="safePlaybooksList" class="memory-cards-container">
+          <!-- Dynamically populated from Hindsight -->
+        </div>
+
+        <div class="section-title-wrap">
+          <span class="section-title">Mistakes to Avoid (Negative Memory)</span>
+        </div>
+        <div id="mistakesList" class="memory-cards-container">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="section-title-wrap">
+          <span class="section-title">Active Policies & Rules</span>
+        </div>
+        <div id="policiesList" class="memory-cards-container">
+          <!-- Dynamically populated -->
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- Teach Rule Modal -->
+  <div id="teachModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Teach Guardian a New Rule</h3>
+        <button id="closeTeachModalBtn" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">This rule will be saved directly into your <strong>Hindsight Cloud</strong> memory bank so the agent adheres to it during future incidents.</p>
+        <div class="form-group">
+          <label for="ruleCategory">Category:</label>
+          <select id="ruleCategory" class="input-select">
+            <option value="Database Policy">Database Policy</option>
+            <option value="Deployment Rule">Deployment Rule</option>
+            <option value="Security & Secrets">Security & Secrets</option>
+            <option value="Third-Party Integration">Third-Party Integration</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ruleText">Rule / Knowledge Description:</label>
+          <textarea id="ruleText" rows="3" class="input-textarea" placeholder="e.g. Always cap PostgreSQL connection pool to 100, because AWS RDS micro instance will run out of memory otherwise."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveRuleBtn" class="btn btn-primary">Save to Hindsight Cloud</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Settings & API Configuration</h3>
+        <button id="closeSettingsModalBtn" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="geminiKey">Google Gemini API Key:</label>
+          <input type="password" id="geminiKey" class="input-text" placeholder="AIzaSy...">
+          <small class="form-hint">Optional: Built-in heuristics power all default scenarios.</small>
+        </div>
+        <div class="form-group">
+          <label for="hindsightUrl">Hindsight Base URL:</label>
+          <input type="text" id="hindsightUrl" value="https://api.hindsight.vectorize.io" class="input-text">
+        </div>
+        <div class="form-group">
+          <label for="hindsightKey">Hindsight Cloud API Key:</label>
+          <input type="password" id="hindsightKey" placeholder="hsk_..." class="input-text">
+          <small class="form-hint">Active key loaded from .env.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
